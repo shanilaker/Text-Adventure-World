@@ -2,24 +2,25 @@
 #include <windows.h>
 #include <conio.h>
 #include "Screens.h"
+#include "Player.h"
 
 enum Keys { ESC = 27 };
 
 int main() {
-	//hideCursor();
+	hideCursor();
 	Screens screens;
 	screens.game_screens[0].draw();
-	//Player players[] = { Player player1(10, 10, 1, 0, '@'), Player player2(10, 10, 1, 0, '@') };
-
+	Player players[] = { Player(20, 30, 1, 0, '@',"wdxas"), Player(10, 10, 1, 0, '#', "ilmjk") };
+	int game_state = 0;
 	
 	while (true) {
-		
 		if (_kbhit()) {
 			char start_key = _getch();
 			if (start_key == '1')
 			{
 				cls();
-				//screen.draw();
+				screens.game_screens[1].draw();
+				game_state = 1;
 			}
 		}
 		if (_kbhit()) {
@@ -36,12 +37,23 @@ int main() {
 					break;
 				}
 			}
-			/*else {
+			else {
 				for (auto& p : players) {
 					p.handleKeyPressed(key);
+					
 				}
-			}*/
+			}
 		}
+
+		if (game_state == 1) {
+			for (auto& p : players) {
+				p.draw(' ');
+				p.move();
+				p.draw();
+			}
+			cout.flush(); 
+		}
+
 		Sleep(50);
 	}
 	cls();
