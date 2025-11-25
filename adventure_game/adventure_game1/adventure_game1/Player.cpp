@@ -6,6 +6,17 @@ void Player::move() {
 	y = (y + diff_y + Screen::MAX_Y) % Screen::MAX_Y;
 }
 
+void Player::handleKeyPressed(char key_pressed) {
+	size_t index = 0;
+	for (char k : keys) {
+		if (std::tolower(k) == std::tolower(key_pressed)) {
+			setDirection((Direction)index);
+			return;
+		}
+		++index;
+	}
+}
+
 void Player::setDirection(Direction dir) {
 	switch (dir) {
 	case Direction::UP:
@@ -30,3 +41,4 @@ void Player::setDirection(Direction dir) {
 		break;
 	}
 }
+
