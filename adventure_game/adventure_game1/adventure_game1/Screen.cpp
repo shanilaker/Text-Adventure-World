@@ -11,7 +11,7 @@ void Screen::draw() const {
 }
 
 // The original constructor definition
-Screen::Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle): screen_riddle(the_riddle)
+Screen::Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door the_screen_door, int the_default_x, int the_default_y): screen_riddle(the_riddle), screen_door(the_screen_door), default_y(the_default_y), default_x(the_default_x)
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {

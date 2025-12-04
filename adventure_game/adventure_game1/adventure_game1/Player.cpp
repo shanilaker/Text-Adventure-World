@@ -49,12 +49,16 @@ bool Player::move(Screen& cur_screen) {
 	// check if target is door
 	else if (target_char >= '1' && target_char <= '9') {
 		// DOOR 1 OPENS WITH K
-		if (target_char == '1' && getHeldItem() == 'K') {
+		if (getHeldItem() == 'K') {
 			setHeldItem('\0'); //remove key after using it
-			cur_screen.setCharAt(next_x, next_y, ' '); // //open door - set as key
-
-			x = next_x; //go into the door
-			y = next_y;
+			cur_screen.getDoor().openDoor();
+			if (cur_screen.getDoor().isOpen() && cur_screen.get_players_moved() < 2)
+			{
+				cur_screen.set_player_moved();
+				draw(' ');
+				hideForTransition();
+				
+			}
 			return false;
 		}
 
@@ -72,10 +76,12 @@ bool Player::move(Screen& cur_screen) {
 			x = next_x;
 			y = next_y;
 			solvedRiddle = 0;
+			setDirection(Direction::STAY);
 			return false;
 		}
-		if (solvedRiddle = 0)
+		if (solvedRiddle == 0)
 		{
+			setDirection(Direction::STAY);
 			return false;
 		}
 		solvedRiddle = -1;

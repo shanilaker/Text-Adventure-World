@@ -3,22 +3,24 @@
 #include "utils.h"
 #include "Direction.h"
 #include "Game.h"
+#include "Key.h"
 
 class Screens;
 class Screen;
 
 class Player {
 	int x = 1, y = 1;
-	int diff_x = 1, diff_y = 0;
+	int diff_x = 0, diff_y = 0;
 	char ch = '*';
 	static constexpr size_t NUM_KEYS = 6;
 	char held_item = '\0';
 	char keys[NUM_KEYS];
 	int current_room_id = 0;
+	int held_key;
 	
 
 public:
-	int solvedRiddle = 0;
+	int solvedRiddle = -2;
 	Player() {}
 	Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) {
 		x = x1;
@@ -50,10 +52,32 @@ public:
 	int getCurrentRoomID() const {
 		return current_room_id;
 	}
-
+	void setKey(int the_key)
+	{
+		held_key = the_key;
+	}
 	
+	void setPosition(int x1, int y1)
+	{
+		x = x1;
+		y = y1;
+		setDirection(Direction::STAY);
+	}
+
 	void setCurrentRoomID(int new_room_id) {
 		current_room_id = new_room_id;
+	}
+
+	void hideForTransition()
+	{
+		x = -1;
+		y = -1;
+		setDirection(Direction::STAY);
+	}
+
+	bool isWaiting()const
+	{
+		return x == -1 && y == -1;
 	}
 
 	char getHeldItem() const { return held_item; }
