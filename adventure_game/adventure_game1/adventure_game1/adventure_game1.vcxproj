@@ -128,15 +128,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Door.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Key.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Riddle.cpp" />
+    <ClCompile Include="Riddles.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Screens.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Direction.h" />
+    <ClInclude Include="Door.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Key.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Riddle.h" />
+    <ClInclude Include="Riddles.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Screens.h" />
     <ClInclude Include="utils.h" />
