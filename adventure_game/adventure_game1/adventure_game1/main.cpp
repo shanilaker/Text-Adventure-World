@@ -100,15 +100,17 @@ int main() {
 
 				for (auto& p : players) {
 
-					p.draw(' ');
-
+					if (!p.isWaiting()) {
+						p.draw(' ');
+					}
 
 					if (p.move(screens.game_screens[current_room])) {
 						riddle_triggered = true;
 					}
 
-
-					p.draw();
+					if (!p.isWaiting()) {
+						p.draw();
+					}
 				}
 				cout.flush();
 
@@ -118,6 +120,17 @@ int main() {
 					game_state = RIDDLE_ACTIVE;
 					screens.game_screens[current_room].getScreenRiddle().draw();
 
+				}
+
+				if (screens.game_screens[current_room].get_players_moved() == 2)
+				{
+					cls();
+					current_room++;
+					screens.game_screens[current_room].draw();
+					/*for (auto& p : players) {
+						p.setPosition(screens.game_screens[current_room].getDefault_x(), screens.game_screens[current_room].getDefault_y());
+					}*/
+					
 				}
 			}
 

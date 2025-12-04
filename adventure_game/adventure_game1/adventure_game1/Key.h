@@ -12,7 +12,8 @@ public:
 		y = y1;
 		id = the_id;
 	}
-
+	Key()
+	{}
 	int getX() const { return x; }
 	int getY() const { return y; }
 	int getID() const { return id; }
