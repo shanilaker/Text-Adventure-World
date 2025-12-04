@@ -3,58 +3,129 @@
 #include <conio.h>
 #include "Screens.h"
 #include "Player.h"
+#include "Game.h"
 
 enum Keys { ESC = 27 };
 
 int main() {
 	hideCursor();
 	Screens screens;
-	screens.game_screens[0].draw();
-	Player players[] = { Player(20, 30, 1, 0, '@',"wdxas"), Player(10, 10, 1, 0, '#', "ilmjk") };
-	int game_state = 0;
-	
+	screens.game_screens[MENU].draw();
+	Player players[] = { Player(20, 20, 0, 0, '@',"wdxase", 0, false), Player(10, 10, 0, 0, '#', "ilmjko", 0, false) };
+
+	int game_state = MENU;
+	int current_room = MENU;
+
 	while (true) {
 		if (_kbhit()) {
-			char start_key = _getch();
-			if (start_key == '1')
+			char key = _getch();
+			if (game_state == MENU && key == '1')
 			{
 				cls();
-				screens.game_screens[1].draw();
-				game_state = 1;
+				game_state = PLAYING;
+				current_room = 1;
+				screens.game_screens[current_room].draw();
+
 			}
-		}
-		if (_kbhit()) {
-			char key = _getch();
-			
-			if (key == Keys::ESC) {
-				// add a note  “Game paused, press ESC again to continue or X to go back to the main menu”.
-				// Pause - till any key is pressed
-				key = _getch();
+			if (game_state == RIDDLE_ACTIVE)
+			{
+				if (key == screens.game_screens[current_room].getScreenRiddle().getAnswer())
+				{
+					cls();
+					screens.game_screens[current_room].draw();
+					for (auto& p : players) {
+						if (p.solvedRiddle == -1)
+						{
+							p.solvedRiddle = 1;
+						}
+						p.draw(' ');
+						p.move(screens.game_screens[current_room]);
+						p.draw();
+					}
+					cout.flush();
+				}
+				
+				else
+				{
+					cls();
+					screens.game_screens[current_room].draw();
+					for (auto& p : players) {
+						if (p.solvedRiddle == -1)
+						{
+							p.solvedRiddle = 0;
+						}
+						p.draw(' ');
+						p.draw();
+					}
+					cout.flush();
+				}
+				game_state = PLAYING;
+			}
+		
+			else if (game_state == PAUSED) {
 				if (key == 'H' || key == 'h') {
-					//go to menu
+					game_state = MENU;
+					cls();
+					screens.game_screens[MENU].draw();
 				}
+				else if (key == Keys::ESC) {
+					game_state = PLAYING;
+					screens.game_screens[PLAYING].draw();
+					for (auto& p : players) {
+						p.draw();
+					}
+				}
+			}
+			else if (game_state == PLAYING) {
 				if (key == Keys::ESC) {
-					break;
+					// Pause - till any key is pressed
+					if (game_state == PLAYING) {
+						gotoxy(4, 10);
+						cout << "Game paused, press ESC again to continue or H to go back to the main menu";
+						game_state = PAUSED;
+					}
+				}
+				else {
+					for (auto& p : players) {
+						p.handleKeyPressed(key);
+					}
 				}
 			}
-			else {
+
+		}
+
+
+			if (game_state == PLAYING) {
+				bool riddle_triggered = false;
+
 				for (auto& p : players) {
-					p.handleKeyPressed(key);
-					
+
+					p.draw(' ');
+
+
+					if (p.move(screens.game_screens[current_room])) {
+						riddle_triggered = true;
+					}
+
+
+					p.draw();
+				}
+				cout.flush();
+
+				
+
+				if (riddle_triggered) {
+					game_state = RIDDLE_ACTIVE;
+					screens.game_screens[current_room].getScreenRiddle().draw();
+
 				}
 			}
-		}
 
-		if (game_state == 1) {
-			for (auto& p : players) {
-				p.draw(' ');
-				p.move();
-				p.draw();
-			}
-			cout.flush(); 
-		}
-
+			
+		
 		Sleep(50);
+		
 	}
 	cls();
+	return 0;
 }
