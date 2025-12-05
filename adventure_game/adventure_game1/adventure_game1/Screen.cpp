@@ -11,7 +11,7 @@ void Screen::draw() const {
 }
 
 // The original constructor definition
-Screen::Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door the_screen_door, int the_default_x, int the_default_y): screen_riddle(the_riddle), screen_door(the_screen_door), default_y(the_default_y), default_x(the_default_x)
+Screen::Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door the_screen_door, int the_default_x, int the_default_y, Bomb the_screen_bomb): screen_bomb(the_screen_bomb),screen_riddle(the_riddle), screen_door(the_screen_door), default_y(the_default_y), default_x(the_default_x)
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {
@@ -28,7 +28,7 @@ Screen::Screen(const char* the_screen[Game::MAX_Y])
 }
 
 // **Copy Constructor** (Deep Copy)
-Screen::Screen(const Screen& other):screen_riddle(other.screen_riddle)
+Screen::Screen(const Screen& other):screen_riddle(other.screen_riddle), default_y(other.default_y), default_x(other.default_x), screen_door(other.screen_door), screen_bomb(other.screen_bomb)
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {
@@ -75,7 +75,10 @@ Screen& Screen::operator=(const Screen& other)
             }
         }
         screen_riddle = other.screen_riddle;
-
+        default_y = other.default_y;
+        default_x = other.default_x;
+        screen_door = other.screen_door;
+        screen_bomb = other.screen_bomb;
     }
     return *this;
 }

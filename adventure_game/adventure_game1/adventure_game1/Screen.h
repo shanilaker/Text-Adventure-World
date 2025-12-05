@@ -5,6 +5,7 @@
 #include "Riddle.h"
 #include "Game.h"
 #include "Door.h"
+#include "Bomb.h"
 
 using std::cout, std::endl;
 
@@ -16,6 +17,8 @@ class Screen {
 	int players_moved = 0;
 	int default_x;
 	int default_y;
+	Bomb screen_bomb;
+
 public:
 	Screen()
 	{
@@ -25,7 +28,7 @@ public:
 		}
 
 	}
-	Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door screen_door, int default_x,int default_y);
+	Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door screen_door, int default_x,int default_y, Bomb screen_bomb);
 	Screen(const char* the_screen[Game::MAX_Y]);
 	Screen(const Screen& other); // Copy Constructor
 	Screen& operator=(const Screen& other);

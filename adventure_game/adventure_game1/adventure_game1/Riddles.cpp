@@ -64,6 +64,6 @@ Riddles::Riddles()
 	Riddle first_riddle = Riddle(riddle1, 60, 3, 1, '2'); 
 	game_riddles[0] = first_riddle;
 
-	Riddle second_riddle = Riddle(riddle2, 40, 12, 2, '3');// need update when we have the real games screens
+	Riddle second_riddle = Riddle(riddle2, 78, 3, 2, '3');// need update when we have the real games screens
 	game_riddles[1] = second_riddle;
 }

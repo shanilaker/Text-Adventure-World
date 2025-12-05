@@ -11,7 +11,7 @@ int main() {
 	hideCursor();
 	Screens screens;
 	screens.game_screens[MENU].draw();
-	Player players[] = { Player(20, 20, 0, 0, '@',"wdxase", 0, false), Player(10, 10, 0, 0, '#', "ilmjko", 0, false) };
+	Player players[] = { Player(20, 20, 0, 0, '$',"wdxase", 0, false), Player(10, 10, 0, 0, '&', "ilmjko", 0, false) };
 
 	int game_state = MENU;
 	int current_room = MENU;
@@ -19,14 +19,48 @@ int main() {
 	while (true) {
 		if (_kbhit()) {
 			char key = _getch();
-			if (game_state == MENU && key == '1')
+			if (game_state == MENU)
 			{
-				cls();
-				game_state = PLAYING;
-				current_room = 1;
-				screens.game_screens[current_room].draw();
+				if (key == '1')
+				{
+					cls();
+					game_state = PLAYING;
+					current_room = 1;
+					screens.game_screens[current_room].draw();
 
+				}
+
+				if (key == '8')
+				{
+					cls();
+					current_room = 4;
+					game_state = INSTRUCTIONS;
+					screens.game_screens[current_room].draw();
+					
+
+				}
 			}
+				
+			if (game_state == INSTRUCTIONS)
+			{
+				if (key == Keys::ESC) 
+				{
+					game_state = MENU;
+					current_room = 1;
+					screens.game_screens[MENU].draw();
+				}
+			}
+
+			if (game_state == END_GAME)
+			{
+				if (key == Keys::ESC)
+				{
+					game_state = MENU;
+					current_room = 1;
+					screens.game_screens[MENU].draw();
+				}
+			}
+
 			if (game_state == RIDDLE_ACTIVE)
 			{
 				if (key == screens.game_screens[current_room].getScreenRiddle().getAnswer())
@@ -38,9 +72,13 @@ int main() {
 						{
 							p.solvedRiddle = 1;
 						}
-						p.draw(' ');
-						p.move(screens.game_screens[current_room]);
-						p.draw();
+						if (!p.isWaiting())
+						{
+							p.draw(' ');
+							p.move(screens.game_screens[current_room]);
+							p.draw();
+						}
+						
 					}
 					cout.flush();
 				}
@@ -100,7 +138,7 @@ int main() {
 
 				for (auto& p : players) {
 
-					if (!p.isWaiting()) {
+					if (!p.isWaiting() && !p.getJustDisposed()){
 						p.draw(' ');
 					}
 
@@ -110,6 +148,12 @@ int main() {
 
 					if (!p.isWaiting()) {
 						p.draw();
+					}
+
+					if (p.getJustDisposed()) {
+						cls();
+						screens.game_screens[current_room].draw();
+						p.setJustDisposed(false); 
 					}
 				}
 				cout.flush();
@@ -126,12 +170,26 @@ int main() {
 				{
 					cls();
 					current_room++;
-					screens.game_screens[current_room].draw();
-					/*for (auto& p : players) {
-						p.setPosition(screens.game_screens[current_room].getDefault_x(), screens.game_screens[current_room].getDefault_y());
-					}*/
+
+					if (current_room == 3)
+					{
+						game_state = END_GAME;
+						screens.game_screens[current_room].draw();
+					}
+
+					else 
+					{
+						screens.game_screens[current_room].draw();
+						for (auto& p : players) {
+							p.setPosition(screens.game_screens[current_room].getDefault_x(), screens.game_screens[current_room].getDefault_y());
+							p.setDirection(Direction::STAY);
+							p.draw();
+						}
+					}
+					}
 					
-				}
+
+
 			}
 
 			
