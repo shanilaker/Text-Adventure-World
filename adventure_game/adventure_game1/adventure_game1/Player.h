@@ -17,7 +17,7 @@ class Player {
 	char keys[NUM_KEYS];
 	int current_room_id = 0;
 	int held_key;
-	
+	bool just_disposed = false;
 
 public:
 	int solvedRiddle = -2;
@@ -79,7 +79,8 @@ public:
 	{
 		return x == -1 && y == -1;
 	}
-
+	void setJustDisposed(bool val) { just_disposed = val; }
+	bool getJustDisposed() const { return just_disposed; }
 	char getHeldItem() const { return held_item; }
 	void setHeldItem(char item) { held_item = item; }
 	bool hasItem() const { return held_item != '\0'; }

@@ -5,11 +5,13 @@
 bool Player::move(Screen& cur_screen) {
 
 	// dispose
-	if (diff_x == 99 || diff_y == 99) {
+	if (diff_x == 99 && diff_y == 99) {
 		if (hasItem()) {
 			// throw item at current place
 			cur_screen.setCharAt(x, y, getHeldItem());
 			setHeldItem('\0');
+			setJustDisposed(true);
+
 		}
 		setDirection(Direction::STAY);
 		return false;
@@ -48,6 +50,10 @@ bool Player::move(Screen& cur_screen) {
 
 	// check if target is door
 	else if (target_char >= '1' && target_char <= '9') {
+		if (cur_screen.getDoor().isOpen())
+		{
+			cur_screen.set_player_moved();
+		}
 		// DOOR 1 OPENS WITH K
 		if (getHeldItem() == 'K') {
 			setHeldItem('\0'); //remove key after using it
@@ -67,6 +73,19 @@ bool Player::move(Screen& cur_screen) {
 		return false;
 	}
 
+	else if (target_char == '@')
+	{
+		if (!hasItem()) {
+			setHeldItem('@'); // pick up key
+			cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
+			x = next_x; // go to key spot
+			y = next_y;
+			return false;
+		}
+		//if already has item - stop.
+		setDirection(Direction::STAY);
+		return false;
+	}
 	
 	else if (target_char == '?')
 	{
@@ -82,6 +101,7 @@ bool Player::move(Screen& cur_screen) {
 		if (solvedRiddle == 0)
 		{
 			setDirection(Direction::STAY);
+			solvedRiddle = -2;
 			return false;
 		}
 		solvedRiddle = -1;
@@ -130,6 +150,10 @@ void Player::setDirection(Direction dir) {
 	case Direction::STAY:
 		diff_x = 0;
 		diff_y = 0;
+		break;
+	case Direction::DISPOSE:
+		diff_x = 99;
+		diff_y = 99;
 		break;
 	}
 }

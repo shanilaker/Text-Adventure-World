@@ -5,6 +5,8 @@ enum GameState {
     PLAYING = 1,
     RIDDLE_ACTIVE = 2,
     PAUSED = 3,
+    INSTRUCTIONS = 4,
+    END_GAME = 5,
     EXIT = 9
 };
 
