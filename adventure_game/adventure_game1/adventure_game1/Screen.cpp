@@ -1,4 +1,5 @@
 ﻿#include "Screen.h"
+#include "Game.h"
 
 void Screen::draw() const {
 	cls();
@@ -8,6 +9,11 @@ void Screen::draw() const {
 	}
 	cout << screen[Game::MAX_Y - 1];
 	cout.flush();
+}
+
+void Screen::draw(int x, int y) const {
+    gotoxy(x, y);
+    cout << screen[y][x];
 }
 
 // The original constructor definition

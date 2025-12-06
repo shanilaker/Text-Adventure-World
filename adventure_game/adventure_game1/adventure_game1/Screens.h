@@ -1,8 +1,8 @@
 #pragma once
 #include "Screen.h"
 #include "Riddles.h"
-#include "Game.h"
 #include "Bomb.h"
+#include "Game.h"
 
 class Screens
 {

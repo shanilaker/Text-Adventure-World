@@ -8,6 +8,7 @@
 
 using std::cout, std::endl;
 
+
 class Riddle
 {
 	int x = 0;

@@ -1,4 +1,11 @@
 #pragma once
+#include <iostream>
+#include <windows.h>
+#include <conio.h>
+//#include "Screens.h"
+//#include "Player.h"
+
+enum Keys { ESC = 27 };
 
 enum GameState {
     MENU = 0,
@@ -10,9 +17,28 @@ enum GameState {
     EXIT = 9
 };
 
+class Screens;
+class Player;
+
 class Game
 {
+    int run_time = 0;
+
 public:
 	enum { MAX_X = 80, MAX_Y = 25 };
+
+    Game(){}
+
+    int getRuntime()
+    {
+        return run_time;
+    }
+
+    void setRuntime()
+    {
+        run_time++;
+    }
+
+    void run();
 };
 

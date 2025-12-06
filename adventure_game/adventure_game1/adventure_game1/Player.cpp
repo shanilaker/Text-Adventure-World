@@ -1,8 +1,10 @@
 #include "Player.h"
 #include "Screens.h"
 
-
 bool Player::move(Screen& cur_screen) {
+
+	int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;
+	int next_y = (y + diff_y + Game::MAX_Y) % Game::MAX_Y;
 
 	// dispose
 	if (diff_x == 99 && diff_y == 99) {
@@ -11,14 +13,11 @@ bool Player::move(Screen& cur_screen) {
 			cur_screen.setCharAt(x, y, getHeldItem());
 			setHeldItem('\0');
 			setJustDisposed(true);
-
 		}
 		setDirection(Direction::STAY);
 		return false;
 	}
 
-	int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;
-	int next_y = (y + diff_y + Game::MAX_Y) % Game::MAX_Y;
 
 	// check boundries
 	if (next_x <= 0 || next_x >= Game::MAX_X - 1 || next_y <= 0 || next_y >= Game::MAX_Y - 1) {
@@ -35,8 +34,8 @@ bool Player::move(Screen& cur_screen) {
 	}
 
 	// check key
-	else if (target_char == 'K') {
-		if (!hasItem()) {
+	else if (target_char == 'K' && !(diff_x == 0 && diff_y == 0)) {
+		if (!hasItem() && !getJustDisposed()) {
 			setHeldItem('K'); // pick up key
 			cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
 			x = next_x; // go to key spot
@@ -107,9 +106,12 @@ bool Player::move(Screen& cur_screen) {
 		solvedRiddle = -1;
 		return true;
 	}
-
 	// keep moving
 	else {
+		if (next_x != x || next_y != y) {
+			setJustDisposed(false);
+		}
+		cur_screen.draw(x, y);
 		x = next_x;
 		y = next_y;
 		return false;

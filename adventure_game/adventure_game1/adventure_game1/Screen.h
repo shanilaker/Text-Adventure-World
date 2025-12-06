@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "Player.h"
 #include <string.h>
 #include "Riddle.h"
 #include "Game.h"
@@ -9,7 +8,7 @@
 
 using std::cout, std::endl;
 
-
+class Player;
 class Screen {
 	Riddle screen_riddle;
 	char* screen[Game::MAX_Y];
@@ -37,6 +36,7 @@ public:
 		return screen_riddle; 
 	}
 	void draw() const;
+	void draw(int x, int y) const;
 	void setCharAt(int x, int y, char ch);
 	char getCharAt(int x, int y) const;
 	Door& getDoor()
