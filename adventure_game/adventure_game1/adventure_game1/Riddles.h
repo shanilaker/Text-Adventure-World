@@ -1,5 +1,6 @@
 #pragma once
 #include "Riddle.h"
+#include "Game.h"
 
 class Riddles
 {

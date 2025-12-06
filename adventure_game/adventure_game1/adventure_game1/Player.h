@@ -79,6 +79,15 @@ public:
 	{
 		return x == -1 && y == -1;
 	}
+
+	int getDiffx() const {
+		return diff_x;
+	}
+
+	int getDiffy() const {
+		return diff_y;
+	}
+
 	void setJustDisposed(bool val) { just_disposed = val; }
 	bool getJustDisposed() const { return just_disposed; }
 	char getHeldItem() const { return held_item; }
