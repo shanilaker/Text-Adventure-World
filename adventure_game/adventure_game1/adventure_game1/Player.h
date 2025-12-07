@@ -16,9 +16,13 @@ class Player {
 	char held_item = '\0';
 	char keys[NUM_KEYS];
 	int current_room_id = 0;
-	int held_key;
+	//int held_key;
 	bool just_disposed = false;
-
+	bool is_active = true;
+	int reset_valueX;
+	int reset_valueY;
+	int diff_valueX;
+	int diff_valueY;
 public:
 	int solvedRiddle = -2;
 	Player() {}
@@ -31,15 +35,40 @@ public:
 		memcpy(keys, the_keys, NUM_KEYS * sizeof(keys[0]));
 		current_room_id = room_id;
 		riddleSolved = solvedRiddle;
+		reset_valueX = x1;
+		reset_valueY = y1;
+		diff_valueX = diffx;
+		diff_valueY = diffy;
+	}
+
+	void reset()
+	{
+		x = reset_valueX;
+		y = reset_valueY;
+		diff_x = diff_valueX;
+		diff_y = diff_valueY;
+		held_item = '\0';
+		is_active = true;
+		current_room_id = 1;
+		solvedRiddle = -2;
 	}
 	void draw() {
-		draw(ch);
+		if (is_active)
+		{
+			draw(ch);
+		}
 	}
 	void draw(char c) {
-		gotoxy(x, y);
-		std::cout << c;
+		if (is_active) {
+			gotoxy(x, y);
+			std::cout << c;
+		}
 	}
-	bool move(Screen& cur_screen);
+	bool isActive() const { return is_active; }
+	void kill() { 
+		draw(' ');
+		is_active = false; }
+	bool move(Screen& cur_screen, Game the_game);
 	void setDirection(Direction dir);
 	void handleKeyPressed(char key_pressed);
 	int getX() const {
@@ -52,10 +81,10 @@ public:
 	int getCurrentRoomID() const {
 		return current_room_id;
 	}
-	void setKey(int the_key)
+	/*void setKey(int the_key)
 	{
 		held_key = the_key;
-	}
+	}*/
 	
 	void setPosition(int x1, int y1)
 	{
@@ -93,5 +122,9 @@ public:
 	char getHeldItem() const { return held_item; }
 	void setHeldItem(char item) { held_item = item; }
 	bool hasItem() const { return held_item != '\0'; }
+	bool getIsActive()
+	{
+		return is_active;
+	}
 };
 

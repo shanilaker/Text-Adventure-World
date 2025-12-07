@@ -138,6 +138,7 @@
     <ClCompile Include="Riddles.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Screens.cpp" />
+    <ClCompile Include="Switch.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="Riddles.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Screens.h" />
+    <ClInclude Include="Switch.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
