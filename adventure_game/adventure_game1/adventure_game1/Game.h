@@ -2,8 +2,7 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
-//#include "Screens.h"
-//#include "Player.h"
+#include <cstdlib>
 
 enum Keys { ESC = 27 };
 
@@ -14,11 +13,13 @@ enum GameState {
     PAUSED = 3,
     INSTRUCTIONS = 4,
     END_GAME = 5,
-    EXIT = 9
+    LOSE = 6
 };
 
 class Screens;
 class Player;
+
+using std::max;
 
 class Game
 {

@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Screens.h"
 
-bool Player::move(Screen& cur_screen) {
+bool Player::move(Screen& cur_screen, Game the_game) {
 
 	int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;
 	int next_y = (y + diff_y + Game::MAX_Y) % Game::MAX_Y;
@@ -10,6 +10,13 @@ bool Player::move(Screen& cur_screen) {
 	if (diff_x == 99 && diff_y == 99) {
 		if (hasItem()) {
 			// throw item at current place
+			if (getHeldItem() == '@')
+			{
+				cur_screen.get_bomb().set_is_activated(true);
+				cur_screen.get_bomb().setX(x);
+				cur_screen.get_bomb().setY(y);
+				cur_screen.get_bomb().set_time_to_explode(the_game.getRuntime());
+			}
 			cur_screen.setCharAt(x, y, getHeldItem());
 			setHeldItem('\0');
 			setJustDisposed(true);
@@ -49,25 +56,58 @@ bool Player::move(Screen& cur_screen) {
 
 	// check if target is door
 	else if (target_char >= '1' && target_char <= '9') {
-		if (cur_screen.getDoor().isOpen())
+
+		Door& door = cur_screen.getDoor();
+		if (!door.getisActive())
+		{
+			return false;
+		}
+		if (door.isOpen() )
 		{
 			cur_screen.set_player_moved();
-		}
-		// DOOR 1 OPENS WITH K
-		if (getHeldItem() == 'K') {
-			setHeldItem('\0'); //remove key after using it
-			cur_screen.getDoor().openDoor();
-			if (cur_screen.getDoor().isOpen() && cur_screen.get_players_moved() < 2)
-			{
-				cur_screen.set_player_moved();
+			if (cur_screen.get_players_moved() < 2) {
 				draw(' ');
 				hideForTransition();
-				
+			}
+			return false;
+		}
+		// If door is linked to switches and they're not ON
+		if (door.isLinkedToSwitches() && !cur_screen.areSwitchesCorrect()) {
+			setDirection(Direction::STAY);
+			return false;
+		}
+
+		// If door is linked ONLY to switches and they're correct
+		if (door.isLinkedToSwitches() && door.getNumKeyNeeded() == 0)
+		{
+			door.openDoor();
+			cur_screen.set_player_moved();
+			if (cur_screen.get_players_moved() < 2)
+			{
+				draw(' ');
+				hideForTransition();
 			}
 			return false;
 		}
 
-		// //if you don't have the key, stay in place
+		if (door.getNumKeyNeeded() > 0 && getHeldItem() == 'K') {
+
+			setHeldItem('\0');
+			door.openDoor();
+
+			if (door.isOpen())
+			{
+				cur_screen.set_player_moved();
+				if (cur_screen.get_players_moved() < 2)
+				{
+					draw(' ');
+					hideForTransition();
+				}
+			}
+			return false;
+		}
+
+		//if you don't have the key, stay in place
 		setDirection(Direction::STAY);
 		return false;
 	}
@@ -106,6 +146,26 @@ bool Player::move(Screen& cur_screen) {
 		solvedRiddle = -1;
 		return true;
 	}
+
+	else if (target_char == '/' || target_char == '\\')
+	{
+		Switch* switches = cur_screen.getSwitches();
+		int num_switches = cur_screen.getNumSwitches();
+
+		//search for the switch
+		for (int i = 0; i < num_switches; ++i) {
+			if (next_x == switches[i].getX() && next_y == switches[i].getY() && switches[i].get_isActive()) {
+				switches[i].changeState(); // turn switch on/off
+
+				cur_screen.setCharAt(next_x, next_y, switches[i].getCurrentChar());
+				cur_screen.draw(next_x, next_y);
+				break;
+			}
+		}
+		setDirection(Direction::STAY);
+		return false;
+		}
+
 	// keep moving
 	else {
 		if (next_x != x || next_y != y) {
