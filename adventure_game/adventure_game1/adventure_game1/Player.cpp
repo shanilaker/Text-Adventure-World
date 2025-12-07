@@ -1,6 +1,66 @@
 #include "Player.h"
 #include "Screens.h"
 
+Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) {
+	x = x1;
+	y = y1;
+	diff_x = diffx;
+	diff_y = diffy;
+	ch = c;
+	memcpy(keys, the_keys, NUM_KEYS * sizeof(keys[0]));
+	current_room_id = room_id;
+	riddleSolved = solvedRiddle;
+	reset_valueX = x1;
+	reset_valueY = y1;
+	diff_valueX = diffx;
+	diff_valueY = diffy;
+}
+
+void Player::reset()
+{
+	x = reset_valueX;
+	y = reset_valueY;
+	diff_x = diff_valueX;
+	diff_y = diff_valueY;
+	held_item = '\0';
+	is_active = true;
+	current_room_id = 1;
+	solvedRiddle = -2;
+}
+
+void Player::hideForTransition()
+{
+	x = -1;
+	y = -1;
+	setDirection(Direction::STAY);
+}
+
+void Player::setPosition(int x1, int y1)
+{
+	x = x1;
+	y = y1;
+	setDirection(Direction::STAY);
+}
+
+void Player::kill() {
+	draw(' ');
+	is_active = false;
+}
+
+void Player::draw() const {
+	if (is_active)
+	{
+		draw(ch);
+	}
+}
+void Player::draw(char c) const {
+	if (is_active) {
+		gotoxy(x, y);
+		std::cout << c;
+	}
+}
+
+
 bool Player::move(Screen& cur_screen, Game the_game) {
 
 	int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;

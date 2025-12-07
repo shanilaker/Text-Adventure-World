@@ -28,18 +28,16 @@ class Game
 public:
 	enum { MAX_X = 80, MAX_Y = 25 };
 
+    //Empty ctor
     Game(){}
 
-    int getRuntime()
-    {
-        return run_time;
-    }
+    //Get the run time of the game
+    int getRuntime() const{ return run_time; }
 
-    void setRuntime()
-    {
-        run_time++;
-    }
+    //Set the run time of the game
+    void setRuntime(){ run_time++; }
 
+    //Start the game
     void run();
 };
 

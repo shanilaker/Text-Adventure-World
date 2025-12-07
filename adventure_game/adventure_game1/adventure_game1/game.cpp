@@ -221,6 +221,7 @@ void Game::run()
 					if (max_dist <= 3 && p.isActive())
 					{
 						p.kill();
+						game_state = LOSE;
 					}
 				}
 
@@ -315,7 +316,7 @@ void Game::run()
 				if (screens.game_screens[current_room].getScreenRiddle().getisActive())
 				{
 					game_state = RIDDLE_ACTIVE;
-					screens.game_screens[current_room].getScreenRiddle().draw();
+					screens.game_screens[current_room].getScreenRiddle().Show_Riddle();
 				}
 				
 

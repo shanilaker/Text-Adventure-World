@@ -17,27 +17,34 @@ class Riddle
 	int room_connected = -1;
 	char answer;
 	bool is_active = true;
+
 public:
+
+	//Ctor
 	Riddle(const char* r_text[Game::MAX_Y], int r_x, int r_y, int r_room_connected, char the_answer);
+	
+	//Empty Ctor
 	Riddle();
-	//Riddle(const Riddle& other);
-	//~Riddle();
-	//Riddle& operator=(const Riddle& other);
-	void draw() const;
+
+	//Show the riddle on the screen
 	void Show_Riddle() const;
+
+	//Get is active
 	bool getisActive() const { return is_active; }
+
+	//Deactivates the riddle
 	void kill() { is_active = false; }
-	int getX() const {
-		return x;
-	}
-	int getY() const {
-		return y;
-	}
-	char getAnswer() const {
-		return answer;
-	}
-	void setisActive(bool value) {
-		is_active = value;
-	}
+
+	//Get the x
+	int getX() const { return x; }
+
+	//Get the y
+	int getY() const { return y; }
+
+	//Get the answer of the riddle
+	char getAnswer() const { return answer; }
+
+	//Set the is_active
+	void setisActive(bool value) { is_active = value; }
 };
 
