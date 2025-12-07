@@ -58,7 +58,7 @@ Riddle::Riddle()
 //    return *this;
 //}
 
-void Riddle::draw() const 
+void Riddle::Show_Riddle() const
 {
     if (is_active)
     {
@@ -69,14 +69,6 @@ void Riddle::draw() const
         }
         cout << text[Game::MAX_Y - 1];
         cout.flush();
-    } 
-}
-
-void Riddle::Show_Riddle() const
-{
-    if (is_active)
-    {
-        this->draw();
-    }   
+    }
 }
 

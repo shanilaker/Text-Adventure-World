@@ -2,7 +2,41 @@
 #include "Game.h"
 #include "Screen.h"
 
+Screen::Screen()
+{
+    for (int i = 0; i < Game::MAX_Y; i++)
+    {
+        for (int j = 0; j < Game::MAX_X; j++)
+        {
+            screen[i][j] = ' ';
+            screen_reset[i][j] = ' ';
+        }
+    }
 
+}
+
+void Screen::reset()
+{
+    for (int i = 0; i < Game::MAX_Y; i++)
+    {
+        for (int j = 0; j < Game::MAX_X; j++)
+        {
+            screen[i][j] = screen_reset[i][j];
+        }
+    }
+    screen_riddle.setisActive(true);
+    screen_door.setisActive(true);
+    screen_bomb.setisActive(true);
+    screen_bomb.set_is_activated(false);
+    screen_bomb.set_time_to_explode(-6);
+    players_moved = 0;
+    for (int i = 0;i < num_switches;i++)
+    {
+        screen_switches[i].set_is_on();
+    }
+    screen_door.set_num_key_needed();
+    screen_door.set_is_open();
+}
 
 void Screen::draw(int x, int y) const {
     gotoxy(x, y);
@@ -17,6 +51,16 @@ void Screen::draw() const {
     }
     cout << screen[Game::MAX_Y - 1];
     cout.flush();
+}
+
+bool Screen::areSwitchesCorrect() const {
+    int count = 0;
+    for (int i = 0; i < num_switches; i++) {
+        if (screen_switches[i].isOn()) {
+            count++;
+        }
+    }
+    return count == required_on_switches;
 }
 
 // The original constructor definition

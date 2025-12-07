@@ -1,5 +1,6 @@
 #pragma once
-class Door {
+class Door 
+{
 	int x, y;
 	char door_number = '1';
 	bool is_open = false;
@@ -13,29 +14,39 @@ public:
 	Door(){}
 
 	//Ctor
-
 	Door(int x1, int y1, char number, int the_num_key_needed, bool linked_switches) :x(x1), y(y1), door_number(number), num_key_needed(the_num_key_needed), linked_to_switches(linked_switches), reset_num_key_needed(the_num_key_needed){}
 
+	//Get x
 	int getX() const { return x; }
+
+	//Get y
 	int getY() const { return y; }
+
+	//Return if the door is open
 	bool isOpen() const { return is_open; }
+
+	//Get if the door is active
 	bool getisActive() const { return is_active; }
+
+	//Deactivate the door
 	void kill() { is_active = false; }
-	//Updates the number of keys remaining to open the door
+
+	//Updates the number of keys remaining to open the door and open the door accordingly
 	void openDoor();
-	void set_is_open()
-	{
-		is_open = false;
-	}
-	void setisActive(bool value)
-	{
-		is_active = true;
-	}
-	void set_num_key_needed()
-	{
-		num_key_needed = reset_num_key_needed;
-	}
+
+	//Close the door
+	void set_is_open(){ is_open = false; }
+
+	//Dactivate the door
+	void setisActive(bool value){ is_active = true; }
+
+	//Set the number of keys needed to open the door
+	void set_num_key_needed(){ num_key_needed = reset_num_key_needed; }
+
+	//Returns if the door link to switches
 	bool isLinkedToSwitches() const { return linked_to_switches; }
+
+	//Get the number of key needed
 	int getNumKeyNeeded() const { return num_key_needed; }
 };
 

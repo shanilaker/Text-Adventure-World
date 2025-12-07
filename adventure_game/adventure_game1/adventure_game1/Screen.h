@@ -10,8 +10,8 @@
 using std::cout, std::endl;
 
 class Player;
-class Screen {
-
+class Screen 
+{
 public:
 	enum { MAX_SWITCHES = 10 };
 private:
@@ -28,91 +28,62 @@ private:
 	int required_on_switches;
 
 public:
-	Screen()
-	{
-		for (int i = 0; i < Game::MAX_Y; i++)
-		{
-			for (int j = 0; j < Game::MAX_X; j++)
-			{
-				screen[i][j] = ' ';
-				screen_reset[i][j] = ' ';
-			}
-		}
+	//Empty ctor
+	Screen();
 
-	}
+	//Ctor
 	Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door the_screen_door, int the_default_x, int the_default_y, Bomb the_screen_bomb, const Switch the_switches[], int count, int required_on);
-	Screen(const char* the_screen[Game::MAX_Y]);
-	//Screen(const Screen& other); // Copy Constructor
-	//Screen& operator=(const Screen& other);
-	Riddle& getScreenRiddle()  
-	{ 
-		return screen_riddle; 
-	}
-	void reset()
-	{
-		for (int i = 0; i < Game::MAX_Y; i++)
-		{
-			for (int j = 0; j < Game::MAX_X; j++)
-			{
-				screen[i][j] = screen_reset[i][j];
-			}
-		}
-		screen_riddle.setisActive(true);
-		screen_door.setisActive(true);
-		screen_bomb.setisActive(true);
-		screen_bomb.set_is_activated(false);
-		screen_bomb.set_time_to_explode(-6);
-		players_moved = 0;
-		for (int i = 0;i< num_switches;i++)
-		{
-			screen_switches[i].set_is_on();
-		}
-		screen_door.set_num_key_needed();
-		screen_door.set_is_open();
-	}
-	void draw() const;
-	void draw(int x, int y) const;
-	void setCharAt(int x, int y, char ch);
-	char getCharAt(int x, int y) const;
-	Door& getDoor()
-	{
-		return screen_door;
-	}
-	int& getDefault_x()
-	{
-		return default_x;
-	}
-	int& getDefault_y()
-	{
-		return default_y;
-	}
-	//~Screen();
-	int& get_players_moved()
-	{
-		return players_moved;
-	}
-	void set_player_moved()
-	{
-		players_moved++;
-	}
-	Bomb& get_bomb()
-	{
-		return screen_bomb;
-	}
 
+	//Ctor
+	Screen(const char* the_screen[Game::MAX_Y]);
+
+	//Get the screen riddle
+	Riddle& getScreenRiddle(){ return screen_riddle; }
+
+	//Reset the screen
+	void reset();
+	
+	//Draw the all screen
+	void draw() const;
+
+	//Draws a specific location on the screen
+	void draw(int x, int y) const;
+
+	//Set the char at this location
+	void setCharAt(int x, int y, char ch);
+
+	//Get the char at this location
+	char getCharAt(int x, int y) const;
+
+	//Set the door at this location
+	Door& getDoor(){ return screen_door; }
+
+	//Get the default x
+	int& getDefault_x() { return default_x; }
+
+	//Get the default y
+	int& getDefault_y(){ return default_y; }
+
+	//Get the number of players that moved
+	int& get_players_moved() { return players_moved; }
+
+	//Set the number of players that moved
+	void set_player_moved(){ players_moved++; }
+
+	//Get the bomb
+	Bomb& get_bomb() { return screen_bomb; }
+
+	//Get the switches
 	Switch* getSwitches() { return screen_switches; }
+
+	//Get the number of switches
 	int getNumSwitches() const { return num_switches; }
+
+	//Get the number of switches that need to be on
 	int getRequiredOnSwitches() const { return required_on_switches; }
 
-	bool areSwitchesCorrect() const {
-		int count = 0;
-		for (int i = 0; i < num_switches; i++) {
-			if (screen_switches[i].isOn()) {
-				count++;
-			}
-		}
-		return count == required_on_switches;
-	}
+	//Checks if the switches is on
+	bool areSwitchesCorrect() const;
 };
 
 
