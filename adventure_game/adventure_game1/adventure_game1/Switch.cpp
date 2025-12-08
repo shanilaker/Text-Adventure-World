@@ -1,6 +1,6 @@
 #include "Switch.h"
 
-//Returns the shape of the switch
+//Returns the state of the switch
 char Switch::getCurrentChar() const {
 	if (is_on) {
 		return on_char;

@@ -20,12 +20,12 @@ private:
 	char screen_reset[Game::MAX_Y][Game::MAX_X + 1];
 	Door screen_door;
 	int players_moved = 0;
-	int default_x;
-	int default_y;
+	int default_x = -1;
+	int default_y = -1;
 	Bomb screen_bomb;
 	Switch screen_switches[MAX_SWITCHES];
 	int num_switches = 0;
-	int required_on_switches;
+	int required_on_switches = -1;
 
 public:
 	//Empty ctor
