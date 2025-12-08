@@ -15,18 +15,18 @@ class Player
 	char ch = '*';
 	static constexpr size_t NUM_KEYS = 6;
 	char held_item = '\0';
-	char keys[NUM_KEYS];
+	char keys[NUM_KEYS] = {};
 	int current_room_id = 0;
 	bool just_disposed = false;
 	bool is_active = true;
-	int reset_valueX;
-	int reset_valueY;
-	int diff_valueX;
-	int diff_valueY;
-
-public:
+	int reset_valueX = -1;
+	int reset_valueY = -1;
+	int diff_valueX  = -1;
+	int diff_valueY = -1;
 	int solvedRiddle = -2;
 
+public:
+	
 	//Empty ctor
 	Player() {}
 
@@ -41,6 +41,12 @@ public:
 
 	//Draw c in x, y
 	void draw(char c) const;
+
+	//Get the solvedRiddle
+	int getsolvedRiddle() const { return solvedRiddle; }
+
+	//Set the solvedRiddle
+	void setsolvedRiddle(int value) { solvedRiddle = value; }
 
 	//Get if the player is active
 	bool isActive() const { return is_active; }

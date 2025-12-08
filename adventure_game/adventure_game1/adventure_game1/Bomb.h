@@ -1,11 +1,14 @@
 #pragma once
+class Screen;
+class Game;
+class Player;
 
 class Bomb
 {
 	bool is_activated = false;
-	int x;
-	int y;
-	int time_to_explode;
+	int x = -1;
+	int y = -1;
+	int time_to_explode = -1;
 	bool is_active = true;
 
 public:
@@ -44,5 +47,7 @@ public:
 
 	//Deactivate the bomb
 	void kill() { is_active = false; }
+
+	void explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, Player(&players)[2]);
 };
 

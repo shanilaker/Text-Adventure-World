@@ -2,7 +2,8 @@
 
 class Switch 
 {
-	int x, y;
+	int x = -1;
+	int y  = -1;
 	bool is_on = false;
 	char on_char = '/';
 	char off_char = '\\';

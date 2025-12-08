@@ -1,7 +1,8 @@
 #pragma once
 class Door 
 {
-	int x, y;
+	int x = -1;
+	int y = -1;
 	char door_number = '1';
 	bool is_open = false;
 	int num_key_needed = 1;

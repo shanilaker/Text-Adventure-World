@@ -13,9 +13,9 @@ class Riddle
 {
 	int x = 0;
 	int y = 0;
-	char text[Game::MAX_Y][Game::MAX_X + 1];
+	char text[Game::MAX_Y][Game::MAX_X + 1] = {};
 	int room_connected = -1;
-	char answer;
+	char answer = -1;
 	bool is_active = true;
 
 public:

@@ -3,6 +3,8 @@
 #include <windows.h> // Required for Windows API console functions
 #include <cstdlib>
 
+// Used from tirgul with Amir Kirsh
+// Puts cursor on required (x,y) on the screen 
 void gotoxy(int x, int y) {
     std::cout.flush();
     COORD coord;
@@ -11,6 +13,8 @@ void gotoxy(int x, int y) {
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
+// Used from tirgul with Amir Kirsh
+// Hides the cursor from the screen
 void hideCursor()
 {
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -20,6 +24,7 @@ void hideCursor()
     SetConsoleCursorInfo(hStdOut, &curInfo);
 }
 
+//Clears the screen
 void cls() {
     system("cls");
 }

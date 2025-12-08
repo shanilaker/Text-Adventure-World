@@ -6,14 +6,17 @@ void Game::run()
 {
 	hideCursor();
 	Screens screens;
-	screens.game_screens[MENU].draw();
+	screens.getgame_screens()[MENU].draw();
 	Player players[] = { Player(20, 20, 0, 0, '$',"wdxase", 0, false), Player(10, 10, 0, 0, '&', "ilmjko", 0, false) };
 
 	int game_state = MENU;
 	int current_room = MENU;
 
-	while (true) {
-		if (_kbhit()) {
+	while (true)
+	{
+		bool riddle_triggered;
+		if (_kbhit()) 
+		{
 			char key = _getch();
 			if (game_state == MENU)
 			{
@@ -22,7 +25,7 @@ void Game::run()
 					cls();
 					game_state = PLAYING;
 					current_room = 1;
-					screens.game_screens[current_room].draw();
+					screens.getgame_screens()[current_room].draw();
 
 				}
 
@@ -36,7 +39,7 @@ void Game::run()
 					cls();
 					current_room = 4;
 					game_state = INSTRUCTIONS;
-					screens.game_screens[current_room].draw();
+					screens.getgame_screens()[current_room].draw();
 
 
 				}
@@ -48,7 +51,7 @@ void Game::run()
 				{
 					game_state = MENU;
 					current_room = 0;
-					screens.game_screens[MENU].draw();
+					screens.getgame_screens()[MENU].draw();
 				}
 			}
 
@@ -58,33 +61,33 @@ void Game::run()
 				{
 					game_state = MENU;
 					current_room = 0;
-					screens.game_screens[MENU].draw();
+					screens.getgame_screens()[MENU].draw();
 					for (auto& p : players) {
 						p.reset();
 					}
 					for (int i = 1;i < 3;i++)
 					{
-						screens.game_screens[i].reset();
+						screens.getgame_screens()[i].reset();
 					}
-					
+
 				}
 			}
 
 			if (game_state == LOSE)
 			{
 				cls();
-				screens.game_screens[5].draw();
+				screens.getgame_screens()[5].draw();
 				if (key == Keys::ESC)
 				{
 					game_state = MENU;
 					current_room = 0;
-					screens.game_screens[MENU].draw();
+					screens.getgame_screens()[MENU].draw();
 					for (auto& p : players) {
 						p.reset();
 					}
 					for (int i = 1;i < 3;i++)
 					{
-						screens.game_screens[i].reset();
+						screens.getgame_screens()[i].reset();
 					}
 
 				}
@@ -92,25 +95,25 @@ void Game::run()
 
 			if (game_state == RIDDLE_ACTIVE)
 			{
-				if (key == screens.game_screens[current_room].getScreenRiddle().getAnswer())
+				if (key == screens.getgame_screens()[current_room].getScreenRiddle().getAnswer())
 				{
 					cls();
-					screens.game_screens[current_room].draw();
+					screens.getgame_screens()[current_room].draw();
 					for (auto& p : players) {
 						if (p.getIsActive())
 						{
-							if (p.solvedRiddle == -1)
+							if (p.getsolvedRiddle() == -1)
 							{
-								p.solvedRiddle = 1;
+								p.setsolvedRiddle(1);
 							}
 							if (!p.isWaiting())
 							{
 								p.draw(' ');
-								p.move(screens.game_screens[current_room],*this);
+								p.move(screens.getgame_screens()[current_room], *this);
 								p.draw();
 							}
 						}
-						
+
 
 					}
 					cout.flush();
@@ -119,18 +122,18 @@ void Game::run()
 				else
 				{
 					cls();
-					screens.game_screens[current_room].draw();
+					screens.getgame_screens()[current_room].draw();
 					for (auto& p : players) {
 						if (p.getIsActive())
 						{
-							if (p.solvedRiddle == -1)
+							if (p.getsolvedRiddle() == -1)
 							{
-								p.solvedRiddle = 0;
+								p.setsolvedRiddle(0);
 							}
 							p.draw(' ');
 							p.draw();
 						}
-						
+
 					}
 					cout.flush();
 				}
@@ -141,17 +144,25 @@ void Game::run()
 				if (key == 'H' || key == 'h') {
 					game_state = MENU;
 					cls();
-					screens.game_screens[MENU].draw();
+					current_room = 0;
+					screens.getgame_screens()[MENU].draw();
+					for (auto& p : players) {
+						p.reset();
+					}
+					for (int i = 1;i < 3;i++)
+					{
+						screens.getgame_screens()[i].reset();
+					}
 				}
 				else if (key == Keys::ESC) {
 					game_state = PLAYING;
-					screens.game_screens[PLAYING].draw();
+					screens.getgame_screens()[PLAYING].draw();
 					for (auto& p : players) {
 						if (p.getIsActive())
 						{
 							p.draw();
 						}
-						
+
 					}
 				}
 			}
@@ -170,7 +181,7 @@ void Game::run()
 						{
 							p.handleKeyPressed(key);
 						}
-						
+
 					}
 				}
 			}
@@ -179,109 +190,17 @@ void Game::run()
 
 
 		if (game_state == PLAYING) {
-			bool riddle_triggered = false;
-
-			//GEMINI
-			//If the bomb has been activated and the time has come to explode
-			if (screens.game_screens[current_room].get_bomb().get_time_to_explode() == run_time && screens.game_screens[current_room].get_bomb().is_bomb_activated())
-			{
-				//Bomb location
-				int bomb_x = screens.game_screens[current_room].get_bomb().getX();
-				int bomb_y = screens.game_screens[current_room].get_bomb().getY();
-				Screen& current_screen = screens.game_screens[current_room];
-
-				//Erasing the walls - change to only inside the board
-				for (int y = bomb_y - 1; y <= bomb_y + 1; y++)
-				{
-					for (int x = bomb_x - 1; x <= bomb_x + 1; x++)
-					{
-						/*if (x >= 0 && x < Game::MAX_X && y >= 0 && y < Game::MAX_Y)
-						{*/
-							char target_char = current_screen.getCharAt(x, y);
-
-							if (target_char == 'W' || target_char == '-' || target_char == '|')
-							{
-								//Erase
-								current_screen.setCharAt(x, y, ' ');
-								current_screen.draw(x, y);
-							}
-						//}
-					}
-				}
-
-				for (auto& p : players) {
-
-					//Player distance from bomb
-					int dist_x = std::abs(p.getX() - bomb_x);
-					int dist_y = std::abs(p.getY() - bomb_y);
-
-					int max_dist = max(dist_x, dist_y);
-
-					//Eliminates a player if they are still alive and within 3 yards in any direction.
-					if (max_dist <= 3 && p.isActive())
-					{
-						p.kill();
-						game_state = LOSE;
-					}
-				}
-
-				//Erasing the walls - change to only inside the board
-				for (int y = bomb_y - 3; y <= bomb_y + 3; y++)
-				{
-					for (int x = bomb_x - 3; x <= bomb_x + 3; x++)
-					{
-						/*if (x >= 0 && x < Game::MAX_X && y >= 0 && y < Game::MAX_Y)
-						{*/
-						char target_char = current_screen.getCharAt(x, y);
-
-						if (target_char == '?')
-						{
-							//Erase
-							current_screen.getScreenRiddle().kill();
-							current_screen.setCharAt(x, y, ' ');
-						}
-						if (target_char <= '9' && target_char >= '1')
-						{
-							//Erase
-							current_screen.getDoor().kill();
-							current_screen.setCharAt(x, y, ' ');
-							game_state = LOSE;
-						}
-						if (target_char == 'K')
-						{
-							//Erase
-							current_screen.setCharAt(x, y, ' ');
-							game_state = LOSE;
-						}
-						if (target_char == '\\' || target_char == '/')
-						{
-							//Erase
-							for (int i = 0; i <= current_screen.getNumSwitches();i++)
-							{
-								current_screen.getSwitches()[i].kill();
-								current_screen.setCharAt(x, y, ' ');
-							}
-							game_state = LOSE;
-						}
-						//}
-					}
-				}
-
-				//Killing the bomb we detonated
-				current_screen.get_bomb().kill();
-				current_screen.setCharAt(bomb_x, bomb_y, ' ');
-
-				//Draws the new screen and players
-				current_screen.draw();
+			riddle_triggered = false;
+			screens.getgame_screens()[current_room].get_bomb().explodeBomb(screens.getgame_screens()[current_room], *this, game_state, players);
 
 				for (auto& p : players) {
 					if (p.getIsActive())
 					{
 						p.draw();
 					}
-					
+
 				}
-			}
+			
 
 
 			for (auto& p : players) {
@@ -293,8 +212,8 @@ void Game::run()
 						p.draw(' ');
 					}
 
-					if (p.move(screens.game_screens[current_room], *this)) {
-						if (screens.game_screens[current_room].getScreenRiddle().getisActive())
+					if (p.move(screens.getgame_screens()[current_room], *this)) {
+						if (screens.getgame_screens()[current_room].getScreenRiddle().getisActive())
 						{
 							riddle_triggered = true;
 						}
@@ -313,16 +232,16 @@ void Game::run()
 
 
 			if (riddle_triggered) {
-				if (screens.game_screens[current_room].getScreenRiddle().getisActive())
+				if (screens.getgame_screens()[current_room].getScreenRiddle().getisActive())
 				{
 					game_state = RIDDLE_ACTIVE;
-					screens.game_screens[current_room].getScreenRiddle().Show_Riddle();
+					screens.getgame_screens()[current_room].getScreenRiddle().Show_Riddle();
 				}
 				
 
 			}
 
-			if (screens.game_screens[current_room].get_players_moved() == 2)
+			if (screens.getgame_screens()[current_room].get_players_moved() == 2)
 			{
 				cls();
 				current_room++;
@@ -330,16 +249,16 @@ void Game::run()
 				if (current_room == 3)
 				{
 					game_state = END_GAME;
-					screens.game_screens[current_room].draw();
+					screens.getgame_screens()[current_room].draw();
 				}
 
 				else
 				{
-					screens.game_screens[current_room].draw();
+					screens.getgame_screens()[current_room].draw();
 					for (auto& p : players) {
 						if (p.getIsActive())
 						{
-							p.setPosition(screens.game_screens[current_room].getDefault_x(), screens.game_screens[current_room].getDefault_y());
+							p.setPosition(screens.getgame_screens()[current_room].getDefault_x(), screens.getgame_screens()[current_room].getDefault_y());
 							p.setDirection(Direction::STAY);
 							p.draw();
 						}
@@ -350,7 +269,7 @@ void Game::run()
 
 			setRuntime();
 
-		}
+	}
 
 
 
@@ -358,6 +277,7 @@ void Game::run()
 		
 	}
 	cls();
+	
 }
 
 

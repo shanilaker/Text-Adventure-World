@@ -43,12 +43,12 @@ Screens::Screens() {
 	  "W                                                 W                            W", // 8
 	  "W                                                 W                            W", // 9
 	  "W                                                 W                            W", // 10
-	  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW WWWWWWWW  WWWWWWWWWWWWWWWWWWWWWW", // 11
-	  "W                                             W   W                            W", // 12
-	  "W                                             W   W                            W", // 13 
-	  "W                                             W   W     WWWWWWWWWWWWWWWWWWWWWWWW", // 14
-	  "W                                             W   W     W                      W", // 15
-	  "W                                             W   W     W       WWWWWWWWWWWWWWWW", // 16
+	  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWW", // 11
+	  "W                                                 W                            W", // 12
+	  "W                                                 W                            W", // 13 
+	  "W                                                 W     WWWWWWWWWWWWWWWWWWWWWWWW", // 14
+	  "W                                                 W     W                      W", // 15
+	  "W                                                 W     W       WWWWWWWWWWWWWWWW", // 16
 	  "W                                                 W             W              W", // 17
 	  "W                                                 W     W       W              W", // 18
 	  "W                                  WWWWWWWWWWWWWWWW     W       W     WWWWW  WWW", // 19
@@ -70,10 +70,10 @@ Screens::Screens() {
 			"W                  W                                           W               W", // 5
 			"W                  W                                           W               W", // 6
 			"W                  W                         WWWWWWWWWWWWWWWWWWWWWWWW     WWWWWW", // 7
-			"WWWWWW WWWWWWWWWWWWW                         W                                 W", // 8
-			"W    W W                                     W                                 W", // 9
-			"W    W W                                     W                                 W", // 10
-			"W    W W                                     W                 WWWWWWWWWWWWWWWWW", // 11
+			"WWWWWWWWWWWWWWWWWWWW                         W                                 W", // 8
+			"W                                            W                                 W", // 9
+			"W                                            W                                 W", // 10
+			"W                                            W                 WWWWWWWWWWWWWWWWW", // 11
 			"W                                            W                 W               W", // 12
 			"W                                            W              WWWW        \\      W", // 13      (72,13)
 			"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW              W                  W", // 14
@@ -176,24 +176,24 @@ Screens::Screens() {
 	//Creates the screen array and the relevant screen objects
 	Riddles riddles_array;
 	Screen menu = Screen(Menu);
-	game_screens[0] = menu;
+	setgame_screens(menu, 0);
 
 	Switch switches1[4] = { Switch(9, 4, false), Switch(72, 13, false), Switch(72, 18, false), Switch(59, 11, false) };
 
 	Switch null_switches[1];
 
-	Screen first_screen = Screen(first_room, riddles_array.game_riddles[0], Door(79, 23, '7', 2, false), 20, 20, Bomb(false, 18, 21, -1), null_switches, 0, 0);
-	game_screens[1] = first_screen;
+	Screen first_screen = Screen(first_room, riddles_array.getgame_riddles()[0], Door(79, 23, '7', 2, false), 20, 20, Bomb(false, 18, 21, -1), null_switches, 0, 0);
+	setgame_screens(first_screen, 1);
 
-	Screen second_screen = Screen(second_room, riddles_array.game_riddles[1], Door(40, 1, '9', 0, true), 1, 23, Bomb(false, 71, 3, -1), switches1, 4, 4);
-	game_screens[2] = second_screen;
+	Screen second_screen = Screen(second_room, riddles_array.getgame_riddles()[1], Door(40, 1, '9', 0, true), 1, 23, Bomb(false, 71, 3, -1), switches1, 3, 3);
+	setgame_screens(second_screen, 2);
 
 	Screen end_screen = Screen(the_end);
-	game_screens[3] = end_screen;
+	setgame_screens(end_screen, 3);
 
 	Screen instructions_screen = Screen(Instructions);
-	game_screens[4] = instructions_screen;
+	setgame_screens(instructions_screen, 4);
 
 	Screen lose_screen = Screen(loser_screen);
-	game_screens[5] = lose_screen;
+	setgame_screens(lose_screen, 5);
 }

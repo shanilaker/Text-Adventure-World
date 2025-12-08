@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Screens.h"
 
+//Player constructor
 Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) {
 	x = x1;
 	y = y1;
@@ -16,6 +17,7 @@ Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_key
 	diff_valueY = diffy;
 }
 
+// Resets player values for next game
 void Player::reset()
 {
 	x = reset_valueX;
@@ -28,6 +30,7 @@ void Player::reset()
 	solvedRiddle = -2;
 }
 
+// When player went into the next level and waiting for other player - places it in temporary coord where it is hidden
 void Player::hideForTransition()
 {
 	x = -1;
@@ -35,6 +38,7 @@ void Player::hideForTransition()
 	setDirection(Direction::STAY);
 }
 
+// Places player on a (x,y) on the screen
 void Player::setPosition(int x1, int y1)
 {
 	x = x1;
@@ -42,17 +46,21 @@ void Player::setPosition(int x1, int y1)
 	setDirection(Direction::STAY);
 }
 
+// When player explodes from bomb, hides it from screen and marks it as Inactive
 void Player::kill() {
 	draw(' ');
 	is_active = false;
 }
 
+// Draws player on the screen
 void Player::draw() const {
 	if (is_active)
 	{
 		draw(ch);
 	}
 }
+
+// Draw player on the screen with the given char as symbol
 void Player::draw(char c) const {
 	if (is_active) {
 		gotoxy(x, y);
@@ -60,16 +68,17 @@ void Player::draw(char c) const {
 	}
 }
 
-
+// Reponsible for the player move, calculates his next (x,y) based on speed, direction, and items that appear on its way
 bool Player::move(Screen& cur_screen, Game the_game) {
 
+	// Calculate the next (x,y) the player will be placed at
 	int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;
 	int next_y = (y + diff_y + Game::MAX_Y) % Game::MAX_Y;
 
-	// dispose
+	// If player pressed DISPOSE (marked as diff_x & diff_y == 9)
 	if (diff_x == 99 && diff_y == 99) {
 		if (hasItem()) {
-			// throw item at current place
+			// if player is throwing a bomb 
 			if (getHeldItem() == '@')
 			{
 				cur_screen.get_bomb().set_is_activated(true);
@@ -77,8 +86,8 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 				cur_screen.get_bomb().setY(y);
 				cur_screen.get_bomb().set_time_to_explode(the_game.getRuntime());
 			}
-			cur_screen.setCharAt(x, y, getHeldItem());
-			setHeldItem('\0');
+			cur_screen.setCharAt(x, y, getHeldItem()); // throw held item at current place
+			setHeldItem('\0'); // set held item to nothing
 			setJustDisposed(true);
 		}
 		setDirection(Direction::STAY);
@@ -86,23 +95,23 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 	}
 
 
-	// check boundries
+	// If player is about to go out of screen boundries - make it STAY in place
 	if (next_x <= 0 || next_x >= Game::MAX_X - 1 || next_y <= 0 || next_y >= Game::MAX_Y - 1) {
 		setDirection(Direction::STAY);
 		return false;
 	}
 
-	char target_char = cur_screen.getCharAt(next_x, next_y);
+	char target_char = cur_screen.getCharAt(next_x, next_y); // gets the char the player is about to hit
 
-	// check wall
-	if (target_char == 'W' || target_char == '|' || target_char == '-') {
+	// if target is Wall, stay in place
+	if (target_char == 'W') {
 		setDirection(Direction::STAY);
 		return false;
 	}
 
-	// check key
+	// if Target is Key 
 	else if (target_char == 'K' && !(diff_x == 0 && diff_y == 0)) {
-		if (!hasItem() && !getJustDisposed()) {
+		if (!hasItem() && !getJustDisposed()) { // if doesn't have held item
 			setHeldItem('K'); // pick up key
 			cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
 			x = next_x; // go to key spot
@@ -114,7 +123,7 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 		return false;
 	}
 
-	// check if target is door
+	// If target is door
 	else if (target_char >= '1' && target_char <= '9') {
 
 		Door& door = cur_screen.getDoor();
@@ -122,10 +131,12 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 		{
 			return false;
 		}
-		if (door.isOpen() )
+		// If door is already open
+		if (door.isOpen())
 		{
+			// Count the player as moved to next level
 			cur_screen.set_player_moved();
-			if (cur_screen.get_players_moved() < 2) {
+			if (cur_screen.get_players_moved() < 2) { //If first player to pass door then hide it until next one passes
 				draw(' ');
 				hideForTransition();
 			}
@@ -137,7 +148,7 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 			return false;
 		}
 
-		// If door is linked ONLY to switches and they're correct
+		// If door is linked ONLY to switches and they're correct (all ON)
 		if (door.isLinkedToSwitches() && door.getNumKeyNeeded() == 0)
 		{
 			door.openDoor();
@@ -150,12 +161,13 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 			return false;
 		}
 
+		// If door still required keys and player has one
 		if (door.getNumKeyNeeded() > 0 && getHeldItem() == 'K') {
 
-			setHeldItem('\0');
-			door.openDoor();
+			setHeldItem('\0'); //Take key from player
+			door.openDoor(); //Attempt to open door
 
-			if (door.isOpen())
+			if (door.isOpen()) // If door opened - let player in 
 			{
 				cur_screen.set_player_moved();
 				if (cur_screen.get_players_moved() < 2)
@@ -172,12 +184,13 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 		return false;
 	}
 
+	// If target is bomb
 	else if (target_char == '@')
 	{
 		if (!hasItem()) {
-			setHeldItem('@'); // pick up key
-			cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
-			x = next_x; // go to key spot
+			setHeldItem('@'); // pick up bomb
+			cur_screen.setCharAt(next_x, next_y, ' '); // remove bomb from screen
+			x = next_x; // go to bomb spot
 			y = next_y;
 			return false;
 		}
@@ -185,39 +198,43 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 		setDirection(Direction::STAY);
 		return false;
 	}
-	
+
+	// If target is riddle
 	else if (target_char == '?')
 	{
-		if (solvedRiddle == 1)
+		// if answer is correct
+		if (getsolvedRiddle() == 1)
 		{
 			cur_screen.setCharAt(next_x, next_y, ' ');
 			x = next_x;
 			y = next_y;
-			solvedRiddle = 0;
+			setsolvedRiddle(0);
 			setDirection(Direction::STAY);
 			return false;
 		}
-		if (solvedRiddle == 0)
+		// if answer is NOT correct
+		if (getsolvedRiddle() == 0)
 		{
 			setDirection(Direction::STAY);
-			solvedRiddle = -2;
+			setsolvedRiddle(-2);
 			return false;
 		}
-		solvedRiddle = -1;
+		setsolvedRiddle(-1); // player entered riddle
 		return true;
 	}
 
+	// If target is switch
 	else if (target_char == '/' || target_char == '\\')
 	{
 		Switch* switches = cur_screen.getSwitches();
 		int num_switches = cur_screen.getNumSwitches();
 
-		//search for the switch
+		// search for the switch of the current room
 		for (int i = 0; i < num_switches; ++i) {
-			if (next_x == switches[i].getX() && next_y == switches[i].getY() && switches[i].get_isActive()) {
+			if (next_x == switches[i].getX() && next_y == switches[i].getY() && switches[i].get_isActive()) { //if found switch
 				switches[i].changeState(); // turn switch on/off
 
-				cur_screen.setCharAt(next_x, next_y, switches[i].getCurrentChar());
+				cur_screen.setCharAt(next_x, next_y, switches[i].getCurrentChar()); //change to new state char on screen
 				cur_screen.draw(next_x, next_y);
 				break;
 			}
@@ -226,20 +243,20 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 		return false;
 		}
 
-	// keep moving
+		// keep moving
 	else {
-		if (next_x != x || next_y != y) {
-			setJustDisposed(false);
-		}
-		cur_screen.draw(x, y);
-		x = next_x;
-		y = next_y;
-		return false;
-	}
+			if (next_x != x || next_y != y) {
+				setJustDisposed(false);
+			}
+			cur_screen.draw(x, y);
+			x = next_x;
+			y = next_y;
+			return false;
+			}
 }
 
 
-
+// Copied from tirgul with Amir Kirsh 
 void Player::handleKeyPressed(char key_pressed) {
 	size_t index = 0;
 	for (char k : keys) {
@@ -251,6 +268,7 @@ void Player::handleKeyPressed(char key_pressed) {
 	}
 }
 
+// Copied from tirgul with Amir Kirsh
 void Player::setDirection(Direction dir) {
 	switch (dir) {
 	case Direction::UP:
@@ -273,10 +291,11 @@ void Player::setDirection(Direction dir) {
 		diff_x = 0;
 		diff_y = 0;
 		break;
-	case Direction::DISPOSE:
+	case Direction::DISPOSE: // diff_x & diff_y = 99 marked as DISPOSE
 		diff_x = 99;
 		diff_y = 99;
 		break;
 	}
 }
+
 

@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Screen.h"
 
+// Empty constructor
 Screen::Screen()
 {
     for (int i = 0; i < Game::MAX_Y; i++)
@@ -12,9 +13,9 @@ Screen::Screen()
             screen_reset[i][j] = ' ';
         }
     }
-
 }
 
+// Resets screen for next gane
 void Screen::reset()
 {
     for (int i = 0; i < Game::MAX_Y; i++)
@@ -38,11 +39,13 @@ void Screen::reset()
     screen_door.set_is_open();
 }
 
+// Draws a specific (x,y) on the screen
 void Screen::draw(int x, int y) const {
     gotoxy(x, y);
     cout << screen[y][x];
 }
 
+// Draws screen
 void Screen::draw() const {
     cls();
     gotoxy(0, 0);
@@ -53,8 +56,10 @@ void Screen::draw() const {
     cout.flush();
 }
 
+
 bool Screen::areSwitchesCorrect() const {
     int count = 0;
+    // Checks if all switches in the room are ON
     for (int i = 0; i < num_switches; i++) {
         if (screen_switches[i].isOn()) {
             count++;
@@ -63,7 +68,7 @@ bool Screen::areSwitchesCorrect() const {
     return count == required_on_switches;
 }
 
-// The original constructor definition
+// Constructor 
 Screen::Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door the_screen_door, int the_default_x, int the_default_y, Bomb the_screen_bomb, const Switch the_switches[], int count, int required_on)
     : screen_bomb(the_screen_bomb), screen_riddle(the_riddle), screen_door(the_screen_door), default_y(the_default_y), default_x(the_default_x), num_switches(count), required_on_switches(required_on)
 {
@@ -86,52 +91,8 @@ Screen::Screen(const char* the_screen[Game::MAX_Y])
     }
 }
 
-//// **Copy Constructor** (Deep Copy)
-//Screen::Screen(const Screen& other) :screen_riddle(other.screen_riddle), default_y(other.default_y), default_x(other.default_x), screen_door(other.screen_door), screen_bomb(other.screen_bomb), num_switches(other.num_switches), required_on_switches(other.required_on_switches)
-//{
-//    for (int i = 0; i < Game::MAX_Y; i++)
-//    {
-//        strcpy(screen[i], other.screen[i]);
-//        strcpy(screen_reset[i], other.screen[i]);
-//    }
-//    for (int i = 0; i < other.num_switches; i++) {
-//        screen_switches[i] = other.screen_switches[i];
-//    }
-//}
-
-
-//Screen::~Screen()
-//{
-//
-//}
-
-//Screen& Screen::operator=(const Screen& other)
-//{
-//    if (this != &other) // Check for self-assignment
-//    {
-//        for (int i = 0; i < Game::MAX_Y; i++)
-//        {
-//
-//            strcpy(screen[i], other.screen[i]);
-//            strcpy(screen_reset[i], other.screen[i]);
-//
-//        }
-//        screen_riddle = other.screen_riddle;
-//        default_y = other.default_y;
-//        default_x = other.default_x;
-//        screen_door = other.screen_door;
-//        screen_bomb = other.screen_bomb;
-//        num_switches = other.num_switches;
-//        required_on_switches = other.required_on_switches;
-//        for (int i = 0; i < other.num_switches; ++i) {
-//            screen_switches[i] = other.screen_switches[i];
-//        }
-//
-//    }
-//    return *this;
-//}
-
 char Screen::getCharAt(int x, int y) const {
+    // checks if (x,y) is in screen boundries
     if (x >= 0 && x < Game::MAX_X && y >= 0 && y < Game::MAX_Y) {
         return screen[y][x];
     }
@@ -139,6 +100,7 @@ char Screen::getCharAt(int x, int y) const {
 }
 
 void Screen::setCharAt(int x, int y, char ch) {
+    // checks if (x,y) is in screen boundries
     if (x >= 0 && x <= Game::MAX_X - 1 && y >= 0 && y <= Game::MAX_Y - 1 && screen[y] != nullptr) {
         screen[y][x] = ch;
     }
