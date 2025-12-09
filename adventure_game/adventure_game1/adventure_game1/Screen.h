@@ -47,13 +47,13 @@ public:
 	void draw() const;
 
 	//Draws a specific location on the screen
-	void draw(int x, int y) const;
+	void draw(const int& x, const int& y) const;
 
 	//Set the char at this location
-	void setCharAt(int x, int y, char ch);
+	void setCharAt(const int& x, const int& y, const char& ch);
 
 	//Get the char at this location
-	char getCharAt(int x, int y) const;
+	char getCharAt(const int& x, const int& y) const;
 
 	//Set the door at this location
 	Door& getDoor(){ return screen_door; }

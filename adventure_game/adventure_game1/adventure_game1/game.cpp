@@ -1,286 +1,132 @@
 #include "Game.h"
 #include "Screens.h"
 #include "Player.h"
+#include "Menu.h"
+#include "Riddle.h"
 
 void Game::run()
 {
 	hideCursor();
-	Screens screens;
+	Screens screens; // Initialize the screens manager
+	Menu menu_handler(screens); // Initialize the menu handler with access to screens
+
 	screens.getgame_screens()[MENU].draw();
+	// Initialize two players with their start positions, symbols and keysets
 	Player players[] = { Player(20, 20, 0, 0, '$',"wdxase", 0, false), Player(10, 10, 0, 0, '&', "ilmjko", 0, false) };
 
 	int game_state = MENU;
 	int current_room = MENU;
 
-	while (true)
-	{
-		bool riddle_triggered;
-		if (_kbhit()) 
+	//Main game loop until player chose EXIT
+	while (game_state != GameState::EXIT) {
+
+		auto& current_screen = screens.getgame_screens()[current_room];
+		if (_kbhit()) // Check for keyboard input
 		{
-			char key = _getch();
-			if (game_state == MENU)
+			char key = (char)_getch(); // Get the pressed key
+			bool state_changed = false;
+			//Handler for menu and non-playing states 
+			if (game_state == MENU || game_state == INSTRUCTIONS || game_state == END_GAME || game_state == LOSE || game_state == PAUSED)
 			{
-				if (key == '1')
-				{
-					cls();
-					game_state = PLAYING;
-					current_room = 1;
-					screens.getgame_screens()[current_room].draw();
-
-				}
-
-				if (key == '9')
-				{
-					return;
-				}
-
-				if (key == '8')
-				{
-					cls();
-					current_room = 4;
-					game_state = INSTRUCTIONS;
-					screens.getgame_screens()[current_room].draw();
-
-
+				GameState next_state = menu_handler.run((GameState)game_state, current_room, players, key);
+				// Check if the game state has changed
+				if ((int)next_state != game_state) {
+					game_state = (int)next_state;
+					state_changed = true;
 				}
 			}
-
-			if (game_state == INSTRUCTIONS)
-			{
-				if (key == Keys::ESC)
-				{
-					game_state = MENU;
-					current_room = 0;
-					screens.getgame_screens()[MENU].draw();
-				}
-			}
-
-			if (game_state == END_GAME)
-			{
-				if (key == Keys::ESC)
-				{
-					game_state = MENU;
-					current_room = 0;
-					screens.getgame_screens()[MENU].draw();
-					for (auto& p : players) {
-						p.reset();
-					}
-					for (int i = 1;i < 3;i++)
-					{
-						screens.getgame_screens()[i].reset();
-					}
-
-				}
-			}
-
-			if (game_state == LOSE)
-			{
-				cls();
-				screens.getgame_screens()[5].draw();
-				if (key == Keys::ESC)
-				{
-					game_state = MENU;
-					current_room = 0;
-					screens.getgame_screens()[MENU].draw();
-					for (auto& p : players) {
-						p.reset();
-					}
-					for (int i = 1;i < 3;i++)
-					{
-						screens.getgame_screens()[i].reset();
-					}
-
-				}
-			}
-
-			if (game_state == RIDDLE_ACTIVE)
-			{
-				if (key == screens.getgame_screens()[current_room].getScreenRiddle().getAnswer())
-				{
-					cls();
-					screens.getgame_screens()[current_room].draw();
-					for (auto& p : players) {
-						if (p.getIsActive())
-						{
-							if (p.getsolvedRiddle() == -1)
-							{
-								p.setsolvedRiddle(1);
-							}
-							if (!p.isWaiting())
-							{
-								p.draw(' ');
-								p.move(screens.getgame_screens()[current_room], *this);
-								p.draw();
-							}
-						}
-
-
-					}
-					cout.flush();
-				}
-
-				else
-				{
-					cls();
-					screens.getgame_screens()[current_room].draw();
-					for (auto& p : players) {
-						if (p.getIsActive())
-						{
-							if (p.getsolvedRiddle() == -1)
-							{
-								p.setsolvedRiddle(0);
-							}
-							p.draw(' ');
-							p.draw();
-						}
-
-					}
-					cout.flush();
-				}
+			// riddle state is active, check the player's answer
+			if (game_state == RIDDLE_ACTIVE) {
+				current_screen.getScreenRiddle().checkRiddleAnswer(current_screen, *this, key, players);
 				game_state = PLAYING;
 			}
-
-			else if (game_state == PAUSED) {
-				if (key == 'H' || key == 'h') {
-					game_state = MENU;
-					cls();
-					current_room = 0;
-					screens.getgame_screens()[MENU].draw();
-					for (auto& p : players) {
-						p.reset();
-					}
-					for (int i = 1;i < 3;i++)
-					{
-						screens.getgame_screens()[i].reset();
-					}
-				}
-				else if (key == Keys::ESC) {
-					game_state = PLAYING;
-					screens.getgame_screens()[PLAYING].draw();
-					for (auto& p : players) {
-						if (p.getIsActive())
-						{
-							p.draw();
-						}
-
-					}
-				}
-			}
-			else if (game_state == PLAYING) {
+			// Handle players key presses
+			else if (game_state == PLAYING && !state_changed) {
+				//Pause
 				if (key == Keys::ESC) {
-					// Pause - till any key is pressed
-					if (game_state == PLAYING) {
-						gotoxy(4, 10);
-						cout << "Game paused, press ESC again to continue or H to go back to the main menu";
-						game_state = PAUSED;
-					}
+					gotoxy(4, 10);
+					cout << "Game paused, press ESC again to continue or H to go back to the main menu";
+					game_state = PAUSED;
 				}
 				else {
 					for (auto& p : players) {
-						if (p.getIsActive())
-						{
-							p.handleKeyPressed(key);
+						if (p.getIsActive()) {
+							p.handleKeyPressed(key); // Handle player movement keys
 						}
-
 					}
 				}
 			}
-
 		}
 
 
 		if (game_state == PLAYING) {
-			riddle_triggered = false;
-			screens.getgame_screens()[current_room].get_bomb().explodeBomb(screens.getgame_screens()[current_room], *this, game_state, players);
-
-				for (auto& p : players) {
-					if (p.getIsActive())
-					{
-						p.draw();
-					}
-
-				}
-			
-
-
-			for (auto& p : players) {
-				if (p.getIsActive())
-				{
-					bool isMoving = (p.getDiffx() != 0 || p.getDiffy() != 0);
-
-					if (!p.isWaiting() && !p.getJustDisposed() && isMoving) {
-						p.draw(' ');
-					}
-
-					if (p.move(screens.getgame_screens()[current_room], *this)) {
-						if (screens.getgame_screens()[current_room].getScreenRiddle().getisActive())
-						{
-							riddle_triggered = true;
-						}
-						
-					}
-
-					if (!p.isWaiting()) {
-						p.draw();
-					}
-				}
-
-				
-			}
+			bool riddle_triggered = false;
+			// Check and update if bomb is activated, handle explosion
+			current_screen.get_bomb().explodeBomb(current_screen, *this, game_state, players);
+			// Update player positions, movement and check for triggers
+			updatePlayers(current_screen, players, riddle_triggered, *this);
 			cout.flush();
 
-
-
+			// Handle riddle trigger event
 			if (riddle_triggered) {
-				if (screens.getgame_screens()[current_room].getScreenRiddle().getisActive())
-				{
+				if (current_screen.getScreenRiddle().getisActive()) {
 					game_state = RIDDLE_ACTIVE;
-					screens.getgame_screens()[current_room].getScreenRiddle().Show_Riddle();
+					current_screen.getScreenRiddle().Show_Riddle();
 				}
-				
-
 			}
-
-			if (screens.getgame_screens()[current_room].get_players_moved() == 2)
-			{
+			// Check if room was completed (both players moved)
+			if (current_screen.get_players_moved() == 2) {
 				cls();
-				current_room++;
+				current_room++; // Move to next room index
+				auto& next_screen = screens.getgame_screens()[current_room];
 
-				if (current_room == 3)
-				{
+				// Check if the next room is the end game screen
+				if (current_room == 3) {
 					game_state = END_GAME;
-					screens.getgame_screens()[current_room].draw();
+					next_screen.draw();
 				}
-
-				else
-				{
-					screens.getgame_screens()[current_room].draw();
-					for (auto& p : players) {
-						if (p.getIsActive())
-						{
-							p.setPosition(screens.getgame_screens()[current_room].getDefault_x(), screens.getgame_screens()[current_room].getDefault_y());
-							p.setDirection(Direction::STAY);
-							p.draw();
-						}
-						
-					}
+				else {
+					// Prepare the next playing room
+					prepareNextRoom(next_screen, players);
 				}
 			}
-
-			setRuntime();
-
-	}
-
-
-
+			setRuntime(); // Update game runtime/cycles
+		}
 		Sleep(80);
-		
 	}
 	cls();
-	
 }
 
-
-
-	
-
+// Updates player positions, checks for movement triggers
+void Game::updatePlayers(Screen& current_screen, Player(&players)[2], bool& riddle_triggered, Game& the_game) {
+	for (auto& p : players) {
+		if (p.getIsActive()) {
+			// Clear player's previous position
+			if (!p.isWaiting() && !p.getJustDisposed()) {
+				p.draw(' ');
+			}
+			// Move the player
+			if (p.move(current_screen, the_game)) {
+				if (current_screen.getScreenRiddle().getisActive()) {
+					riddle_triggered = true;
+				}
+			}
+			// Draw the player in new position
+			if (!p.isWaiting()) {
+				p.draw();
+			}
+		}
+	}
+}
+// Prepares next screen and player positions for it 
+void Game::prepareNextRoom(Screen& next_screen, Player(&players)[2]) {
+	next_screen.draw();
+	for (auto& p : players) {
+		if (p.getIsActive()) {
+			// Set player position to room's default coordination and draw it
+			p.setPosition(next_screen.getDefault_x(), next_screen.getDefault_y());
+			p.setDirection(Direction::STAY);
+			p.draw();
+		}
+	}
+}

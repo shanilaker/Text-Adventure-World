@@ -1,12 +1,12 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "Riddle.h"
+#include "Screen.h"
 
 // Riddle constructor
 Riddle::Riddle(const char* r_text[Game::MAX_Y], int r_x, int r_y,int r_room_connected, char the_answer): x(r_x), y(r_y), room_connected(r_room_connected), answer(the_answer)
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {
-        strcpy(text[i], r_text[i]);
+        strncpy_s(text[i], r_text[i], Game::MAX_X);
     }
 }
 
@@ -27,4 +27,47 @@ void Riddle::Show_Riddle() const
         cout.flush();
     }
 }
+
+//Check if player's riddle answer is correct and update game accordingly
+void Riddle::checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, Player(&players)[2]) {
+    if (key == cur_screen.getScreenRiddle().getAnswer())
+    {
+        // If answer is correct, set solvedRiddle to 1 (SOLVED) and draw player on the game screen
+        cls();
+        cur_screen.draw();
+        for (auto& p : players) {
+            if (p.getIsActive()) {
+                if (p.getsolvedRiddle() == -1) {
+                    p.setsolvedRiddle(1);
+                }
+
+                if (!p.isWaiting()) {
+                    p.draw(' ');
+                    p.move(cur_screen, the_game);
+                    p.draw();
+                }
+            }
+        }
+        cout.flush();
+    }
+    else {
+        //If answer is incorrect, set solvedRiddle to 0 (NOT SOLVED) and draw player on the game screen, near the riddle
+        cls();
+        cur_screen.draw();
+        for (auto& p : players) {
+            if (p.getIsActive())
+            {
+                if (p.getsolvedRiddle() == -1) {
+                    p.setsolvedRiddle(0);
+                }
+                p.draw(' ');
+                p.draw();
+            }
+
+        }
+        cout.flush();
+    }
+
+}
+
 

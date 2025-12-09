@@ -11,7 +11,7 @@ public:
 	Riddle* getgame_riddles() { return game_riddles; }
 
 	//Set the game_riddles
-	void setgame_riddles(Riddle r , int i) { game_riddles[i] = r; }
+	void setgame_riddles(Riddle r , const int& i) { game_riddles[i] = r; }
 
 	//Empty ctor
 	Riddles();

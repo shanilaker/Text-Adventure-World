@@ -14,7 +14,7 @@ public:
 	Screen(&getgame_screens())[6] { return game_screens; }
 
 	//Set the game_screens
-	void setgame_screens(Screen s, int i) { game_screens[i] = s; }
+	void setgame_screens(Screen s, const int& i) { game_screens[i] = s; }
 
 	//Empty Ctor
 	Screens();
