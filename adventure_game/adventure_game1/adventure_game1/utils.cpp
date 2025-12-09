@@ -8,8 +8,8 @@
 void gotoxy(int x, int y) {
     std::cout.flush();
     COORD coord;
-    coord.X = x;
-    coord.Y = y;
+    coord.X = (SHORT)x;
+    coord.Y = (SHORT)y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 

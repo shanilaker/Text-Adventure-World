@@ -17,6 +17,23 @@ Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_key
 	diff_valueY = diffy;
 }
 
+void Player::checkAndkill(int bomb_x, int bomb_y, int& game_state)
+{
+	//GEMINI HELPED
+			//Player distance from bomb
+	int dist_x = std::abs(x - bomb_x);
+	int dist_y = std::abs(y - bomb_y);
+
+	int max_dist = max(dist_x, dist_y);
+
+	//Eliminates a player if they are still alive and within 3 yards in any direction.
+	if (max_dist <= 3 && is_active)
+	{
+		kill();
+		game_state = LOSE;
+	}
+}
+
 // Resets player values for next game
 void Player::reset()
 {
@@ -39,7 +56,7 @@ void Player::hideForTransition()
 }
 
 // Places player on a (x,y) on the screen
-void Player::setPosition(int x1, int y1)
+void Player::setPosition(const int& x1, const int& y1)
 {
 	x = x1;
 	y = y1;
@@ -61,7 +78,7 @@ void Player::draw() const {
 }
 
 // Draw player on the screen with the given char as symbol
-void Player::draw(char c) const {
+void Player::draw(const char & c) const {
 	if (is_active) {
 		gotoxy(x, y);
 		std::cout << c;
@@ -69,7 +86,8 @@ void Player::draw(char c) const {
 }
 
 // Reponsible for the player move, calculates his next (x,y) based on speed, direction, and items that appear on its way
-bool Player::move(Screen& cur_screen, Game the_game) {
+bool Player::move(Screen& cur_screen, Game the_game) 
+{
 
 	// Calculate the next (x,y) the player will be placed at
 	int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;
@@ -81,9 +99,7 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 			// if player is throwing a bomb 
 			if (getHeldItem() == '@')
 			{
-				cur_screen.get_bomb().set_is_activated(true);
-				cur_screen.get_bomb().setX(x);
-				cur_screen.get_bomb().setY(y);
+				cur_screen.get_bomb().set_is_activated(true, x, y);
 				cur_screen.get_bomb().set_time_to_explode(the_game.getRuntime());
 			}
 			cur_screen.setCharAt(x, y, getHeldItem()); // throw held item at current place
@@ -111,153 +127,69 @@ bool Player::move(Screen& cur_screen, Game the_game) {
 
 	// if Target is Key 
 	else if (target_char == 'K' && !(diff_x == 0 && diff_y == 0)) {
-		if (!hasItem() && !getJustDisposed()) { // if doesn't have held item
-			setHeldItem('K'); // pick up key
-			cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
-			x = next_x; // go to key spot
-			y = next_y;
-			return false;
-		}
-		//if already has item - stop.
-		setDirection(Direction::STAY);
-		return false;
+
+		return take_key(cur_screen, next_x, next_y);
 	}
 
 	// If target is door
 	else if (target_char >= '1' && target_char <= '9') {
 
 		Door& door = cur_screen.getDoor();
-		if (!door.getisActive())
-		{
-			return false;
-		}
-		// If door is already open
-		if (door.isOpen())
-		{
-			// Count the player as moved to next level
-			cur_screen.set_player_moved();
-			if (cur_screen.get_players_moved() < 2) { //If first player to pass door then hide it until next one passes
-				draw(' ');
-				hideForTransition();
-			}
-			return false;
-		}
-		// If door is linked to switches and they're not ON
-		if (door.isLinkedToSwitches() && !cur_screen.areSwitchesCorrect()) {
-			setDirection(Direction::STAY);
-			return false;
-		}
-
-		// If door is linked ONLY to switches and they're correct (all ON)
-		if (door.isLinkedToSwitches() && door.getNumKeyNeeded() == 0)
-		{
-			door.openDoor();
-			cur_screen.set_player_moved();
-			if (cur_screen.get_players_moved() < 2)
-			{
-				draw(' ');
-				hideForTransition();
-			}
-			return false;
-		}
-
-		// If door still required keys and player has one
-		if (door.getNumKeyNeeded() > 0 && getHeldItem() == 'K') {
-
-			setHeldItem('\0'); //Take key from player
-			door.openDoor(); //Attempt to open door
-
-			if (door.isOpen()) // If door opened - let player in 
-			{
-				cur_screen.set_player_moved();
-				if (cur_screen.get_players_moved() < 2)
-				{
-					draw(' ');
-					hideForTransition();
-				}
-			}
-			return false;
-		}
-
-		//if you don't have the key, stay in place
-		setDirection(Direction::STAY);
-		return false;
+		return move_to_door(door, cur_screen);
 	}
 
 	// If target is bomb
 	else if (target_char == '@')
 	{
-		if (!hasItem()) {
-			setHeldItem('@'); // pick up bomb
-			cur_screen.setCharAt(next_x, next_y, ' '); // remove bomb from screen
-			x = next_x; // go to bomb spot
-			y = next_y;
-			return false;
-		}
-		//if already has item - stop.
-		setDirection(Direction::STAY);
-		return false;
+		return move_to_bomb(next_x, next_y, cur_screen);
 	}
 
 	// If target is riddle
 	else if (target_char == '?')
 	{
-		// if answer is correct
-		if (getsolvedRiddle() == 1)
-		{
-			cur_screen.setCharAt(next_x, next_y, ' ');
-			x = next_x;
-			y = next_y;
-			setsolvedRiddle(0);
-			setDirection(Direction::STAY);
-			return false;
-		}
-		// if answer is NOT correct
-		if (getsolvedRiddle() == 0)
-		{
-			setDirection(Direction::STAY);
-			setsolvedRiddle(-2);
-			return false;
-		}
-		setsolvedRiddle(-1); // player entered riddle
-		return true;
+		return move_to_riddle(next_x, next_y, cur_screen);
 	}
 
 	// If target is switch
 	else if (target_char == '/' || target_char == '\\')
 	{
-		Switch* switches = cur_screen.getSwitches();
-		int num_switches = cur_screen.getNumSwitches();
-
-		// search for the switch of the current room
-		for (int i = 0; i < num_switches; ++i) {
-			if (next_x == switches[i].getX() && next_y == switches[i].getY() && switches[i].get_isActive()) { //if found switch
-				switches[i].changeState(); // turn switch on/off
-
-				cur_screen.setCharAt(next_x, next_y, switches[i].getCurrentChar()); //change to new state char on screen
-				cur_screen.draw(next_x, next_y);
-				break;
-			}
-		}
-		setDirection(Direction::STAY);
-		return false;
-		}
+		return move_to_switch(next_x, next_y, cur_screen);
+	}
 
 		// keep moving
 	else {
-			if (next_x != x || next_y != y) {
+			if (next_x != x || next_y != y) 
+			{
 				setJustDisposed(false);
 			}
 			cur_screen.draw(x, y);
 			x = next_x;
 			y = next_y;
 			return false;
-			}
+		}
 }
 
+bool Player::move_to_switch(const int& next_x, const int& next_y, Screen& cur_screen)
+{
+	Switch* switches = cur_screen.getSwitches();
+	int num_switches = cur_screen.getNumSwitches();
+
+	// search for the switch of the current room
+	for (int i = 0; i < num_switches; ++i) {
+		if (next_x == switches[i].getX() && next_y == switches[i].getY() && switches[i].get_isActive()) { //if found switch
+			switches[i].changeState(); // turn switch on/off
+
+			cur_screen.setCharAt(next_x, next_y, switches[i].getCurrentChar()); //change to new state char on screen
+			cur_screen.draw(next_x, next_y);
+			break;
+		}
+	}
+	setDirection(Direction::STAY);
+	return false;
+}
 
 // Copied from tirgul with Amir Kirsh 
-void Player::handleKeyPressed(char key_pressed) {
+void Player::handleKeyPressed(const char & key_pressed) {
 	size_t index = 0;
 	for (char k : keys) {
 		if (std::tolower(k) == std::tolower(key_pressed)) {
@@ -266,6 +198,119 @@ void Player::handleKeyPressed(char key_pressed) {
 		}
 		++index;
 	}
+}
+
+
+bool Player::move_to_riddle(const int& next_x, const int & next_y, Screen& cur_screen)
+{
+	// if answer is correct
+	if (getsolvedRiddle() == 1)
+	{
+		cur_screen.setCharAt(next_x, next_y, ' ');
+		x = next_x;
+		y = next_y;
+		setsolvedRiddle(0);
+		setDirection(Direction::STAY);
+		return false;
+	}
+	// if answer is NOT correct
+	if (getsolvedRiddle() == 0)
+	{
+		setDirection(Direction::STAY);
+		setsolvedRiddle(-2);
+		return false;
+	}
+	setsolvedRiddle(-1); // player entered riddle
+	return true;
+}
+//Associate with a door
+bool Player::move_to_door(Door& door, Screen& cur_screen)
+{
+	if (!door.getisActive())
+	{
+		return false;
+	}
+	// If door is already open
+	if (door.isOpen())
+	{
+		// Count the player as moved to next level
+		cur_screen.set_player_moved();
+		if (cur_screen.get_players_moved() < 2) { //If first player to pass door then hide it until next one passes
+			draw(' ');
+			hideForTransition();
+		}
+		return false;
+	}
+	// If door is linked to switches and they're not ON
+	if (door.isLinkedToSwitches() && !cur_screen.areSwitchesCorrect()) {
+		setDirection(Direction::STAY);
+		return false;
+	}
+
+	// If door is linked ONLY to switches and they're correct (all ON)
+	if (door.isLinkedToSwitches() && door.getNumKeyNeeded() == 0)
+	{
+		door.openDoor();
+		cur_screen.set_player_moved();
+		if (cur_screen.get_players_moved() < 2)
+		{
+			draw(' ');
+			hideForTransition();
+		}
+		return false;
+	}
+
+	// If door still required keys and player has one
+	if (door.getNumKeyNeeded() > 0 && getHeldItem() == 'K') {
+
+		setHeldItem('\0'); //Take key from player
+		door.openDoor(); //Attempt to open door
+
+		if (door.isOpen()) // If door opened - let player in 
+		{
+			cur_screen.set_player_moved();
+			if (cur_screen.get_players_moved() < 2)
+			{
+				draw(' ');
+				hideForTransition();
+			}
+		}
+		return false;
+	}
+
+	//if you don't have the key, stay in place
+	setDirection(Direction::STAY);
+	return false;
+}
+
+
+bool Player::move_to_bomb(const int& next_x, const int& next_y, Screen& cur_screen)
+{
+	if (!hasItem()) {
+		setHeldItem('@'); // pick up bomb
+		cur_screen.setCharAt(next_x, next_y, ' '); // remove bomb from screen
+		x = next_x; // go to bomb spot
+		y = next_y;
+		return false;
+	}
+	//if already has item - stop.
+	setDirection(Direction::STAY);
+	return false;
+}
+
+//Take the key if can
+bool Player::take_key(Screen& cur_screen, const int& next_x, const int& next_y)
+{
+	if (!hasItem() && !getJustDisposed()) { // if doesn't have held item
+		setHeldItem('K'); // pick up key
+		cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
+		x = next_x; // go to key spot
+		y = next_y;
+		return false;
+	}
+	//if already has item - stop.
+	setDirection(Direction::STAY);
+	return false;
 }
 
 // Copied from tirgul with Amir Kirsh

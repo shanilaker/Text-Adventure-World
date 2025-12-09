@@ -45,6 +45,9 @@ public:
 	char getAnswer() const { return answer; }
 
 	//Set the is_active
-	void setisActive(bool value) { is_active = value; }
+	void setisActive(const bool& value) { is_active = value; }
+
+	//Check if player's riddle answer is correct and update game accordingly
+	static void checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, Player(&players)[2]);
 };
 

@@ -7,7 +7,8 @@
 
 class Screens;
 class Screen;
-
+class Door;
+class Switch;
 class Player 
 {
 	int x = 1, y = 1;
@@ -36,11 +37,29 @@ public:
 	//reset the player values
 	void reset();
 
+	//Take the key if can
+	bool take_key(Screen& cur_screen, const int& next_x, const int& next_y);
+
+	//Associate with a bomb
+	bool move_to_bomb(const int& next_x, const int& next_y, Screen& cur_screen);
+
+	//Associate with a door
+	bool move_to_door(Door& door, Screen& cur_screen);
+
+	//Associate with a riddle
+	bool move_to_riddle(const int& next_x, const int& next_y, Screen& cur_screen);
+
+	//Associate with a switch
+	bool move_to_switch(const int& next_x, const int& next_y, Screen& cur_screen);
+
+	//Check if need to kill and do it accordingly
+	void checkAndkill(int bomb_x, int bomb_y, int& game_state);
+
 	//Draw the player
 	void draw() const;
 
 	//Draw c in x, y
-	void draw(char c) const;
+	void draw(const char& c) const;
 
 	//Get the solvedRiddle
 	int getsolvedRiddle() const { return solvedRiddle; }
@@ -61,7 +80,7 @@ public:
 	void setDirection(Direction dir);
 
 	//Handles player movement based on the key pressed
-	void handleKeyPressed(char key_pressed);
+	void handleKeyPressed(const char& key_pressed);
 
 	//Get the x
 	int getX() const { return x; }
@@ -73,7 +92,7 @@ public:
 	int getCurrentRoomID() const { return current_room_id; }
 	
 	//Set the position of the player
-	void setPosition(int x1, int y1);
+	void setPosition(const int& x1, const int& y1);
 
 	//Set the current room the player is in
 	void setCurrentRoomID(int new_room_id) { current_room_id = new_room_id; }

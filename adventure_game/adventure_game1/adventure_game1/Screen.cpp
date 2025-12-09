@@ -1,5 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include "Game.h"
+﻿#include "Game.h"
 #include "Screen.h"
 
 // Empty constructor
@@ -26,9 +25,9 @@ void Screen::reset()
         }
     }
     screen_riddle.setisActive(true);
-    screen_door.setisActive(true);
+    screen_door.setisActive();
     screen_bomb.setisActive(true);
-    screen_bomb.set_is_activated(false);
+    screen_bomb.set_is_activated(false, -1,-1);
     screen_bomb.set_time_to_explode(-6);
     players_moved = 0;
     for (int i = 0;i < num_switches;i++)
@@ -40,7 +39,7 @@ void Screen::reset()
 }
 
 // Draws a specific (x,y) on the screen
-void Screen::draw(int x, int y) const {
+void Screen::draw(const int & x, const int& y) const {
     gotoxy(x, y);
     cout << screen[y][x];
 }
@@ -74,8 +73,8 @@ Screen::Screen(const char* the_screen[Game::MAX_Y], Riddle the_riddle, Door the_
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {
-        strcpy(screen[i], the_screen[i]);
-        strcpy(screen_reset[i], the_screen[i]);
+        strncpy_s(screen[i], the_screen[i], Game::MAX_X);
+        strncpy_s(screen_reset[i], the_screen[i], Game::MAX_X);
     }
     for (int i = 0; i < count && i < MAX_SWITCHES; i++) {
         screen_switches[i] = the_switches[i];
@@ -86,12 +85,12 @@ Screen::Screen(const char* the_screen[Game::MAX_Y])
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {
-        strcpy(screen[i], the_screen[i]);
-        strcpy(screen_reset[i], the_screen[i]);
+        strncpy_s(screen[i], the_screen[i], Game::MAX_X);
+        strncpy_s(screen_reset[i], the_screen[i], Game::MAX_X);
     }
 }
 
-char Screen::getCharAt(int x, int y) const {
+char Screen::getCharAt(const int& x, const int& y) const {
     // checks if (x,y) is in screen boundries
     if (x >= 0 && x < Game::MAX_X && y >= 0 && y < Game::MAX_Y) {
         return screen[y][x];
@@ -99,7 +98,7 @@ char Screen::getCharAt(int x, int y) const {
     return ' '; //out of range 
 }
 
-void Screen::setCharAt(int x, int y, char ch) {
+void Screen::setCharAt(const int& x, const int& y, const char & ch) {
     // checks if (x,y) is in screen boundries
     if (x >= 0 && x <= Game::MAX_X - 1 && y >= 0 && y <= Game::MAX_Y - 1 && screen[y] != nullptr) {
         screen[y][x] = ch;

@@ -33,7 +33,7 @@ public:
 	void kill() { is_active = false; }
 
 	//Returns whether the switch is active
-	bool get_isActive(){ return is_active; }
+	bool get_isActive() const { return is_active; }
 
 	//Returns the shape of the switch
 	char getCurrentChar() const;

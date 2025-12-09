@@ -35,7 +35,7 @@ Screens::Screens() {
 	  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW", // 0
 	  "W               W                                 W       W                    W", // 1
 	  "W               W                                         W                    W", // 2
-	  "W      K        ?                                 W       W                    W", // 3    (16,3)
+	  "W      K        ?                                 W       W                    W", // 3    
 	  "W               W                                 W       W                    W", // 4
 	  "W               W                                 W       W                    W", // 5
 	  "WWWWWWWWWWWWWWWWW                                 W       W                    W", // 6
@@ -53,7 +53,7 @@ Screens::Screens() {
 	  "W                                                 W     W       W              W", // 18
 	  "W                                  WWWWWWWWWWWWWWWW     W       W     WWWWW  WWW", // 19
 	  "W                                  W              W     W       W     W        W", // 20
-	  "W       @                          W       K      W     W       W     W        W", // 21    (18,21)
+	  "W       @                          W       K      W     W       W     W        W", // 21    
 	  "W                                  W              W     W             W        W", // 22
 	  "W                                                 W     W       W     W       7W", // 23    
 	  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" };// 24
@@ -65,8 +65,8 @@ Screens::Screens() {
 			"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW", // 0
 			"W                  W                    9                      W               W", // 1      
 			"W                  W                                           W               W", // 2
-			"W                  W                                           W       @       W", // 3       (71,3)
-			"W        \\         W                                           ?               W", // 4    (9,4), (63, 4)
+			"W                  W                                           W       @       W", // 3    
+			"W        \\         W                                           ?               W", // 4    
 			"W                  W                                           W               W", // 5
 			"W                  W                                           W               W", // 6
 			"W                  W                         WWWWWWWWWWWWWWWWWWWWWWWW     WWWWWW", // 7
@@ -75,12 +75,12 @@ Screens::Screens() {
 			"W                                            W                                 W", // 10
 			"W                                            W                 WWWWWWWWWWWWWWWWW", // 11
 			"W                                            W                 W               W", // 12
-			"W                                            W              WWWW        \\      W", // 13      (72,13)
+			"W                                            W              WWWW        \\      W", // 13     
 			"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW              W                  W", // 14
 			"W                                                           W                  W", // 15
 			"W                                                           W  WWWWWWWWWWWWWWWWW", // 16
 			"W                                                     WWWWWWW      W           W", // 17
-			"W                                                     W            W    \\      W", // 18       (72, 18)
+			"W                                                     W            W    \\      W", // 18      
 			"W          W                                          W            W           W", // 19
 			"W          WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW           W            W", // 20
 			"W                                                             WWWW             W", // 21

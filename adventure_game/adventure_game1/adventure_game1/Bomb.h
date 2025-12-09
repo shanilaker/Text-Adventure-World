@@ -19,19 +19,19 @@ public:
 	Bomb(){}
 
 	//Set is active
-	void setisActive(bool value){ is_active = value; }
+	void setisActive(const bool& value){ is_active = value; }
 
 	//Set is activated
-	void set_is_activated(bool set_to){ is_activated = set_to; }
+	void set_is_activated(const bool& set_to, const int& x1, const int& y1);
 
 	//Set x
-	void setX(int newX){ x = newX; }
+	void setX(const int& newX){ x = newX; }
 
 	//Return if the bomb is activated
 	bool is_bomb_activated() const{ return is_activated; }
 
 	//Set y
-	void setY(int newY){ y = newY; }
+	void setY(const int& newY){ y = newY; }
 
 	//Get x
 	int getX() const{ return x; }
@@ -40,14 +40,15 @@ public:
 	int getY() const{ return y; }
 
 	//Set the time to explode
-	void set_time_to_explode(int time){ time_to_explode = time + 5; }
+	void set_time_to_explode(const int& time){ time_to_explode = time + 5; }
 
 	//Get the time to explode
 	int get_time_to_explode() const{ return time_to_explode; }
 
 	//Deactivate the bomb
-	void kill() { is_active = false; }
+	void kill(Screen& current_screen, const int& bomb_x, const int& bomb_y);
 
+	//Explode the bomb
 	void explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, Player(&players)[2]);
 };
 

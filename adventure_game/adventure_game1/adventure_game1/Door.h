@@ -39,7 +39,7 @@ public:
 	void set_is_open(){ is_open = false; }
 
 	//Dactivate the door
-	void setisActive(bool value){ is_active = true; }
+	void setisActive(){ is_active = true; }
 
 	//Set the number of keys needed to open the door
 	void set_num_key_needed(){ num_key_needed = reset_num_key_needed; }

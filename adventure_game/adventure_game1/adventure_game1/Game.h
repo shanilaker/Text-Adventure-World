@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <cstdlib>
 
+class Screen;
 enum Keys { ESC = 27 };
 
 enum GameState {
@@ -13,7 +14,8 @@ enum GameState {
     PAUSED = 3,
     INSTRUCTIONS = 4,
     END_GAME = 5,
-    LOSE = 6
+    LOSE = 6,
+    EXIT = 9
 };
 
 class Screens;
@@ -39,5 +41,11 @@ public:
 
     //Start the game
     void run();
+
+    // Updates player positions, checks for movement triggers
+    void updatePlayers(Screen& current_screen, Player(&players)[2], bool& riddle_triggered, Game& the_game);
+
+    // Prepares next screen and player positions for it
+    void prepareNextRoom(Screen& next_screen, Player(&players)[2]);
 };
 

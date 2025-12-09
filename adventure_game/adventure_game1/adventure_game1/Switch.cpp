@@ -7,3 +7,4 @@ char Switch::getCurrentChar() const {
 	}
 	return off_char;
 }
+
