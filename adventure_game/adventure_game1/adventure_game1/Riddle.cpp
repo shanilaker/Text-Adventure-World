@@ -29,45 +29,67 @@ void Riddle::Show_Riddle() const
 }
 
 //Check if player's riddle answer is correct and update game accordingly
-void Riddle::checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, Player(&players)[2]) {
-    if (key == cur_screen.getScreenRiddle().getAnswer())
+void Riddle::checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, vector<Player>& players)
+{
+    for (auto& riddle : cur_screen.get_riddles())
     {
-        // If answer is correct, set solvedRiddle to 1 (SOLVED) and draw player on the game screen
-        cls();
-        cur_screen.draw();
-        for (auto& p : players) {
-            if (p.getIsActive()) {
-                if (p.getsolvedRiddle() == -1) {
-                    p.setsolvedRiddle(1);
-                }
-
-                if (!p.isWaiting()) {
-                    p.draw(' ');
-                    p.move(cur_screen, the_game);
-                    p.draw();
-                }
-            }
-        }
-        cout.flush();
-    }
-    else {
-        //If answer is incorrect, set solvedRiddle to 0 (NOT SOLVED) and draw player on the game screen, near the riddle
-        cls();
-        cur_screen.draw();
-        for (auto& p : players) {
-            if (p.getIsActive())
+        if (riddle.getActivated())
+        {
+            if (key == riddle.getAnswer())
             {
-                if (p.getsolvedRiddle() == -1) {
-                    p.setsolvedRiddle(0);
-                }
-                p.draw(' ');
-                p.draw();
-            }
+                // If answer is correct, set solvedRiddle to 1 (SOLVED) and draw player on the game screen
+                cls();
+                cur_screen.draw();
+                for (auto& p : players) {
+                    if (p.getIsActive()){
+                        if (p.getsolvedRiddle() == -1){
+                            p.setsolvedRiddle(1);
+                        }
 
+                        if (!p.isWaiting()){
+                            p.draw(' ');
+                            //p.move(cur_screen, the_game);
+                            p.draw();
+                        }
+                    }
+                }
+                cout.flush();
+                riddle.setisActive(false);
+            }
+            else 
+            {
+                //If answer is incorrect, set solvedRiddle to 0 (NOT SOLVED) and draw player on the game screen, near the riddle
+                cls();
+                cur_screen.draw();
+                for (auto& p : players) {
+                    if (p.getIsActive())
+                    {
+                        if (p.getsolvedRiddle() == -1) {
+                            p.setsolvedRiddle(0);
+                        }
+                        p.draw(' ');
+                        p.draw();
+                    }
+
+                }
+                cout.flush();
+            }
+            
+            riddle.setActivated(false);
         }
-        cout.flush();
     }
 
+    for (auto& p : players) 
+    {
+        cur_screen.get_screen_legend().update_values(p.get_char(), players);
+    }
+
+}
+
+void Riddle::reset()
+{
+    is_active = true;
+    activated = false;
 }
 
 

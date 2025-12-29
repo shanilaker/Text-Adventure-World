@@ -8,14 +8,14 @@ class Switch
 	char on_char = '/';
 	char off_char = '\\';
 	bool is_active = true;
-
+	bool is_needed = true;
 public:
 
 	//Empty ctor
 	Switch() {}
 
 	//Ctor
-	Switch(int x1, int y1, bool state = false) : x(x1), y(y1), is_on(state) {}
+	Switch(int x1, int y1, bool state = false, bool needed = false) : x(x1), y(y1), is_on(state), is_needed(needed) {}
 
 	//Get the x
 	int getX() const { return x; }
@@ -40,6 +40,9 @@ public:
 
 	//Turns off the switch
 	void set_is_on(){ is_on = false ;}
+
+	// Returns whether switch is needed to open door
+	bool isNeeded() const { return is_needed; }
 };
 
 

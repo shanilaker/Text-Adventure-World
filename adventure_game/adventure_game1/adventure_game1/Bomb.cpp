@@ -1,49 +1,54 @@
 #include "Bomb.h"
 #include "Screen.h"
 
+void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vector<Player>& players)
+{
+	if (x < 0 || y < 0 || !is_activated) return;
 
-void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, Player(&players)[2]) {
-
-	if (cur_screen.get_bomb().get_time_to_explode() == the_game.getRuntime() && cur_screen.get_bomb().is_bomb_activated())
+	if (time_to_explode == the_game.getRuntime() && is_activated)
 	{
 		//Bomb location
-		int bomb_x = cur_screen.get_bomb().getX();
-		int bomb_y = cur_screen.get_bomb().getY();
+		int bomb_x = x;
+		int bomb_y = y;
 		Screen& current_screen = cur_screen;
-
+	
 		//Erasing the walls - change to only inside the board
 		for (int y_ = bomb_y - 1; y_ <= bomb_y + 1; y_++)
 		{
 			for (int x_ = bomb_x - 1; x_ <= bomb_x + 1; x_++)
 			{
 				char target_char = current_screen.getCharAt(x_, y_);
-
+	
 				if (target_char == 'W')
 				{
 					//Erase
 					current_screen.setCharAt(x_, y_, ' ');
 					current_screen.draw(x_, y_);
 				}
-				
+	
 			}
 		}
-
-		for (auto& p : players) {
-
+	
+		for (auto& p : players) 
+		{
 			p.checkAndkill(bomb_x, bomb_y, game_state);
 		}
-
+	
 		//Erasing the walls - change to only inside the board
 		for (int y_ = bomb_y - 3; y_ <= bomb_y + 3; y_++)
 		{
 			for (int x_ = bomb_x - 3; x_ <= bomb_x + 3; x_++)
 			{
 				char target_char = current_screen.getCharAt(x_, y_);
-
+	
 				if (target_char == '?')
 				{
 					//Erase
-					current_screen.getScreenRiddle().kill();
+					for (auto& riddle : current_screen.get_riddles())
+					{
+						if(x_ == riddle.getX() && y_ == riddle.getY())
+							riddle.kill();
+					}
 					current_screen.setCharAt(x_, y_, ' ');
 				}
 				if (target_char <= '9' && target_char >= '1')
@@ -69,14 +74,15 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, Play
 					}
 					game_state = LOSE;
 				}
-				
+	
 			}
 		}
-
+	
 		//Killing the bomb we detonated
-		current_screen.get_bomb().kill(current_screen,bomb_x,bomb_y);
-
+		this->kill(current_screen, bomb_x, bomb_y);
+	
 	}
+	
 }
 
 	void Bomb::kill(Screen & current_screen, const int& bomb_x, const int& bomb_y) {
@@ -95,3 +101,14 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, Play
 		}
 
 	}
+
+	void Bomb::reset() 
+	{
+		is_active = true;
+		is_activated = false;
+		x = r_x;
+		y = r_y;
+		set_time_to_explode(-6);
+	}
+
+	

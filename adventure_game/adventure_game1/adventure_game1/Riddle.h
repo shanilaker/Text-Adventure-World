@@ -6,7 +6,7 @@
 #include "Player.h"
 #include <string.h>
 
-using std::cout, std::endl;
+using std::cout, std::endl, std::vector;
 
 
 class Riddle
@@ -17,7 +17,7 @@ class Riddle
 	int room_connected = -1;
 	char answer = -1;
 	bool is_active = true;
-
+	bool activated = false;
 public:
 
 	//Ctor
@@ -32,6 +32,15 @@ public:
 	//Get is active
 	bool getisActive() const { return is_active; }
 
+	//Get activated
+	bool getActivated() const { return activated; }
+
+	//Set activated
+	void setActivated(bool value) { activated = value; }
+
+	//Reset riddle
+	void reset();
+
 	//Deactivates the riddle
 	void kill() { is_active = false; }
 
@@ -41,6 +50,12 @@ public:
 	//Get the y
 	int getY() const { return y; }
 
+	//Set the x
+	int setX() const { return x; }
+
+	//Set the y
+	int setY() const { return y; }
+
 	//Get the answer of the riddle
 	char getAnswer() const { return answer; }
 
@@ -48,6 +63,6 @@ public:
 	void setisActive(const bool& value) { is_active = value; }
 
 	//Check if player's riddle answer is correct and update game accordingly
-	static void checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, Player(&players)[2]);
+	static void checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, vector<Player>& players); 
 };
 

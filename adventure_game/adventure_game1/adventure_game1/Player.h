@@ -25,17 +25,30 @@ class Player
 	int diff_valueX  = -1;
 	int diff_valueY = -1;
 	int solvedRiddle = -2;
+	bool moved_obstacle = false;
+	Direction p_dir = Direction::STAY;
+	Point life;
+	Point score;
+	static vector<Player> players;
+
+	int boost_count = 0;
+	int boost_speed = 1;
+	int boost_time = 0;
+	Direction boost_dir = Direction::STAY;
 
 public:
 	
 	//Empty ctor
-	Player() {}
+	Player(){}
 
 	//Ctor
 	Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved);
 
 	//reset the player values
 	void reset();
+
+	//Set the players
+	void set_players(vector<Player>& _players) { players = _players; }
 
 	//Take the key if can
 	bool take_key(Screen& cur_screen, const int& next_x, const int& next_y);
@@ -48,6 +61,9 @@ public:
 
 	//Associate with a riddle
 	bool move_to_riddle(const int& next_x, const int& next_y, Screen& cur_screen);
+
+	//Associate with a obstacle
+	bool move_to_obstacle(Screen& cur_screen, vector<Player>& _players, int _x, int _y);
 
 	//Associate with a switch
 	bool move_to_switch(const int& next_x, const int& next_y, Screen& cur_screen);
@@ -74,10 +90,22 @@ public:
 	void kill();
 
 	//Move the player
-	bool move(Screen& cur_screen, Game the_game);
+	bool move(Screen& cur_screen, Game the_game, Player& other_player);
 
 	//Set the player's direction
 	void setDirection(Direction dir);
+
+	//Set the player's life
+	void setLife(int value) { life.setData(value); }
+
+	//Set the player's Score
+	void setScore(int value) { score.setData(value); }
+
+	//Get the player's life
+	Point getLife() const { return life; }
+
+	//Get the player's Score
+	Point getScore() const { return score; }
 
 	//Handles player movement based on the key pressed
 	void handleKeyPressed(const char& key_pressed);
@@ -112,6 +140,9 @@ public:
 	//Set if the palyer Just Disposed
 	void setJustDisposed(bool val) { just_disposed = val; }
 
+	//Set if the palyer Just Disposed
+	void set_moved_obstacle(bool val) { moved_obstacle = val; }
+
 	//Get JustDisposed
 	bool getJustDisposed() const { return just_disposed; }
 
@@ -119,12 +150,34 @@ public:
 	char getHeldItem() const { return held_item; }
 
 	//Set the item the player holds
-	void setHeldItem(char item) { held_item = item; }
+	void setHeldItem(char item, Screen& cur_screen);
 
 	//Return if the player holds an item
 	bool hasItem() const { return held_item != '\0'; }
 
 	//Get if the player is active
 	bool getIsActive() const { return is_active; }
+
+	//Get the player's sign
+	char get_char() const { return ch; }
+
+	//Get the opposite direction of a given direction
+	Direction getOppositeDirection(Direction dir);
+
+	// Get the remaining time of boost
+	int getBoostTime() const { return boost_time; }
+
+	// Get the amount of speed boost
+	int getBoostSpeed() const { return boost_speed; }
+
+	// Get the direction of the boost
+	Direction getBoostDir() const { return boost_dir; }
+
+	// Set the speed, time and direction of the boost
+	void setBoost(int speed, int time, Direction dir);
+
+	// Associate with a spring
+	bool move_to_spring(const int& next_x, const int& next_y, Screen& cur_screen);
+
 };
 

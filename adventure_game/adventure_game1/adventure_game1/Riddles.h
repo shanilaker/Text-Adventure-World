@@ -4,14 +4,15 @@
 
 class Riddles
 {
-	Riddle game_riddles[3];
+	vector<Riddle> game_riddles;
 
 public:
-	//Get the game_riddles
-	Riddle* getgame_riddles() { return game_riddles; }
 
+	//Get the game_riddles
+	vector<Riddle>& getgame_riddles() { return game_riddles; }
+	 
 	//Set the game_riddles
-	void setgame_riddles(Riddle r , const int& i) { game_riddles[i] = r; }
+	void setgame_riddles(Riddle r) { game_riddles.push_back(r); }
 
 	//Empty ctor
 	Riddles();
