@@ -3,8 +3,10 @@
 #include <windows.h>
 #include <conio.h>
 #include <cstdlib>
+#include <vector>
+#include "Point.h"
 
-class Screen;
+
 enum Keys { ESC = 27 };
 
 enum GameState {
@@ -20,8 +22,8 @@ enum GameState {
 
 class Screens;
 class Player;
-
-using std::max;
+class Screen;
+using std::max, std::vector;
 
 class Game
 {
@@ -43,9 +45,9 @@ public:
     void run();
 
     // Updates player positions, checks for movement triggers
-    void updatePlayers(Screen& current_screen, Player(&players)[2], bool& riddle_triggered, Game& the_game);
+    void updatePlayers(Screen& current_screen, vector<Player>& players, bool& riddle_triggered, Game& the_game);
 
     // Prepares next screen and player positions for it
-    void prepareNextRoom(Screen& next_screen, Player(&players)[2]);
+    void prepareNextRoom(Screen& next_screen, vector<Player>& players);
 };
 

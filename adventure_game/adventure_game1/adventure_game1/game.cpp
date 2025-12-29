@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "Riddle.h"
 
+
 void Game::run()
 {
 	hideCursor();
@@ -12,7 +13,15 @@ void Game::run()
 
 	screens.getgame_screens()[MENU].draw();
 	// Initialize two players with their start positions, symbols and keysets
-	Player players[] = { Player(20, 20, 0, 0, '$',"wdxase", 0, false), Player(10, 10, 0, 0, '&', "ilmjko", 0, false) };
+	vector<Player> players;
+	players.push_back(Player(20, 20, 0, 0, '$', "wdxase", 0, false));
+	players.push_back(Player(10, 10, 0, 0, '&', "ilmjko", 0, false));
+
+	for (auto& p : players)
+	{
+		p.set_players(players);
+	}
+
 
 	int game_state = MENU;
 	int current_room = MENU;
@@ -37,7 +46,15 @@ void Game::run()
 			}
 			// riddle state is active, check the player's answer
 			if (game_state == RIDDLE_ACTIVE) {
-				current_screen.getScreenRiddle().checkRiddleAnswer(current_screen, *this, key, players);
+				for (auto& riddle : current_screen.get_riddles())
+				{
+					if (riddle.getActivated())
+					{
+						riddle.checkRiddleAnswer(current_screen, *this, key, players);
+						riddle.setActivated(false);
+					}
+
+				}
 				game_state = PLAYING;
 			}
 			// Handle players key presses
@@ -62,16 +79,24 @@ void Game::run()
 		if (game_state == PLAYING) {
 			bool riddle_triggered = false;
 			// Check and update if bomb is activated, handle explosion
-			current_screen.get_bomb().explodeBomb(current_screen, *this, game_state, players);
+			for (auto& bomb : current_screen.get_bombs())
+			{
+				bomb.explodeBomb(current_screen, *this, game_state, players);
+			}
+
 			// Update player positions, movement and check for triggers
 			updatePlayers(current_screen, players, riddle_triggered, *this);
 			cout.flush();
 
 			// Handle riddle trigger event
 			if (riddle_triggered) {
-				if (current_screen.getScreenRiddle().getisActive()) {
-					game_state = RIDDLE_ACTIVE;
-					current_screen.getScreenRiddle().Show_Riddle();
+				for (auto& riddle : current_screen.get_riddles())
+				{
+					if (riddle.getisActive() && riddle.getActivated()) {
+						game_state = RIDDLE_ACTIVE;
+						riddle.Show_Riddle();
+						break;
+					}
 				}
 			}
 			// Check if room was completed (both players moved)
@@ -98,17 +123,37 @@ void Game::run()
 }
 
 // Updates player positions, checks for movement triggers
-void Game::updatePlayers(Screen& current_screen, Player(&players)[2], bool& riddle_triggered, Game& the_game) {
-	for (auto& p : players) {
+void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& riddle_triggered, Game& the_game)
+{
+	//Update obstacle parameters
+	for (auto& obstacle : current_screen.get_obstacles())
+	{
+		if (obstacle.get_is_moved() == false) {
+			obstacle.set_to_force_needed(obstacle.get_reset_force());
+			for (auto& p : players) {
+				p.set_moved_obstacle(false);
+			}
+		}
+
+	}
+
+	for (auto& p : players) 
+	{
 		if (p.getIsActive()) {
+			Player& other = (&p == &players[0]) ? players[1] : players[0];
 			// Clear player's previous position
 			if (!p.isWaiting() && !p.getJustDisposed()) {
 				p.draw(' ');
 			}
 			// Move the player
-			if (p.move(current_screen, the_game)) {
-				if (current_screen.getScreenRiddle().getisActive()) {
-					riddle_triggered = true;
+			if (p.move(current_screen, the_game,other)) {
+
+				for (auto& riddle : current_screen.get_riddles())
+				{
+					if (riddle.getisActive()) 
+					{
+						riddle_triggered = true;
+					}
 				}
 			}
 			// Draw the player in new position
@@ -116,17 +161,30 @@ void Game::updatePlayers(Screen& current_screen, Player(&players)[2], bool& ridd
 				p.draw();
 			}
 		}
+
+		// If room is dark, draw only parts that has light
+		if (current_screen.getIsDark()) {
+			current_screen.drawDark(players);
+		}
 	}
+
+	
+	
 }
 // Prepares next screen and player positions for it 
-void Game::prepareNextRoom(Screen& next_screen, Player(&players)[2]) {
+void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players)
+{
 	next_screen.draw();
-	for (auto& p : players) {
-		if (p.getIsActive()) {
+	for (auto& p : players) 
+	{
+		if (p.getIsActive()) 
+		{
 			// Set player position to room's default coordination and draw it
 			p.setPosition(next_screen.getDefault_x(), next_screen.getDefault_y());
 			p.setDirection(Direction::STAY);
 			p.draw();
 		}
 	}
+	
+	
 }

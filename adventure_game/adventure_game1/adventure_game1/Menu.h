@@ -9,6 +9,6 @@ class Menu {
 public:
     Menu(Screens& s);
 
-    GameState run(GameState current_state, int& current_room_id, Player(&players)[2], char key);
+    GameState run(GameState current_state, int& current_room_id, vector<Player>& players, char key);
 };
 

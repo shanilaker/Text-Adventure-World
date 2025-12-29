@@ -3,23 +3,55 @@
 Menu::Menu(Screens& s) : screens(s) {}
 
 // Handles user input and state transitions for non-playing game states
-GameState Menu::run(GameState current_state, int& current_room_id, Player(&players)[2], char key)
+GameState Menu::run(GameState current_state, int& current_room_id, vector<Player>& players, char key)
 {
 
     //GAME STATE IS MENU
     if (current_state == GameState::MENU)
     {
+        bool not_vaild_over_screen = false;
+        bool not_vaild_on_objects = false;
         // Start a new game
         if (key == '1')
         {
             cls();
-            //RESET PLAYERS AND SCREENS
-            for (auto& p : players) { p.reset(); }
-            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(); }
 
-            current_room_id = 1;
-            screens.getgame_screens()[current_room_id].draw();
-            return GameState::PLAYING;
+            //Checks if the Legend point is valid
+            for (int i = 1; i < 3; i++) 
+            { 
+                if (screens.getgame_screens()[i].get_screen_legend().get_over_the_screen())
+                {
+                    not_vaild_over_screen = true;
+                }
+                else if (screens.getgame_screens()[i].get_screen_legend().get_on_objects())
+                {
+                    not_vaild_on_objects = true;
+                }
+            }
+            if (not_vaild_on_objects)
+            {
+                gotoxy(20, 10);
+                cout << "Error: Legend is placed on live objects!";
+                return GameState::MENU;
+            }
+            else if (not_vaild_over_screen)
+            {
+                gotoxy(18, 10);
+                cout << "Error: Legend is placed out of screen bounds!";
+                return GameState::MENU;
+            }
+            else
+            {
+                
+                //RESET PLAYERS AND SCREENS
+                for (auto& p : players) { p.reset(); }
+                for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(players); }
+                current_room_id = 1;
+                
+                screens.getgame_screens()[current_room_id].draw();
+                return GameState::PLAYING;
+            }
+            
         }
         // EXIT the game
         if (key == '9')
@@ -59,7 +91,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, Player(&playe
 
             // Reset players' and room states for new game
             for (auto& p : players) { p.reset(); }
-            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(); }
+            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(players); }
             return GameState::MENU;
         }
         // Resume game if player pressed ESC again
@@ -86,7 +118,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, Player(&playe
             screens.getgame_screens()[current_room_id].draw();
             // Reset players' and room states for new game
             for (auto& p : players) { p.reset(); }
-            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(); }
+            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(players); }
             return GameState::MENU;
         }
     }
