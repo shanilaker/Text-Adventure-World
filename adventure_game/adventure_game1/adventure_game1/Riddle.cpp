@@ -29,7 +29,7 @@ void Riddle::Show_Riddle() const
 }
 
 //Check if player's riddle answer is correct and update game accordingly
-void Riddle::checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, vector<Player>& players)
+void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& players)
 {
     for (auto& riddle : cur_screen.get_riddles())
     {

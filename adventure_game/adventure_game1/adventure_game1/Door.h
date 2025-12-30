@@ -41,13 +41,19 @@ public:
 	//Dactivate the door
 	void setisActive(){ is_active = true; }
 
-	//Set the number of keys needed to open the door
-	void set_num_key_needed(){ num_key_needed = reset_num_key_needed; }
+	//Reset the number of keys needed to open the door
+	void resetNumKeyNeeded(){ num_key_needed = reset_num_key_needed; }
+
+	// Set the number of keys needed to open the door
+	void setNumKeyNeeded(int num_needed) { num_key_needed = num_needed; }
 
 	//Returns if the door link to switches
 	bool isLinkedToSwitches() const { return linked_to_switches; }
 
 	//Get the number of key needed
 	int getNumKeyNeeded() const { return num_key_needed; }
+
+	// set if linked to switches
+	void setLinkedToSwitches(bool islinked) { linked_to_switches = islinked; }
 };
 

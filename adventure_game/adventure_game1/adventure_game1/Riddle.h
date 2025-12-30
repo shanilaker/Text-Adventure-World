@@ -63,6 +63,6 @@ public:
 	void setisActive(const bool& value) { is_active = value; }
 
 	//Check if player's riddle answer is correct and update game accordingly
-	static void checkRiddleAnswer(Screen& cur_screen, Game& the_game, char key, vector<Player>& players); 
+	static void checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& players); 
 };
 

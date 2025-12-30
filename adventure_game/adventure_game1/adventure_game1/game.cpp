@@ -50,7 +50,7 @@ void Game::run()
 				{
 					if (riddle.getActivated())
 					{
-						riddle.checkRiddleAnswer(current_screen, *this, key, players);
+						riddle.checkRiddleAnswer(current_screen, key, players);
 						riddle.setActivated(false);
 					}
 

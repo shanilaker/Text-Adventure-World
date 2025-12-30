@@ -43,6 +43,9 @@ public:
 
 	// Returns whether switch is needed to open door
 	bool isNeeded() const { return is_needed; }
-};
+
+	// Set whether switch is needed to open door
+	void setIsNeeded(bool isneeded) { is_needed = isneeded; }
+ };
 
 
