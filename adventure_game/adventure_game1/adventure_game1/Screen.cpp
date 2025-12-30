@@ -1,5 +1,9 @@
 ﻿#include "Game.h"
 #include "Screen.h"
+#include<fstream>
+#include <iostream>
+#include <string>
+
 
 // Empty constructor
 Screen::Screen()
@@ -46,7 +50,7 @@ void Screen::reset(vector<Player>& players)
     {
         screen_switches[i].set_is_on();
     }
-    screen_door.set_num_key_needed();
+    screen_door.resetNumKeyNeeded();
     screen_door.set_is_open();
 }
 
@@ -189,5 +193,209 @@ void Screen::drawDark(vector<Player>& players) const {
         std::cout << line;
     }
     std::cout.flush();
+}
+
+//From tirgul with amir
+//void Screen::load(const std::string& filename) 
+//{
+//    Point l_p;
+//    std::ifstream screen_file(filename);
+//    // std::cout << screen_file.is_open() << std::endl;
+//    // TODO: handle errors (all sort of...) - do not submit it like that :)
+//    int curr_row = 0;
+//    int curr_col = 0;
+//    char c;
+//    while (!screen_file.get(c).eof() && curr_row < Game::MAX_Y) {
+//        if (c == '\n') {
+//            if (curr_col < Game::MAX_X) {
+//                // add spaces for missing cols
+//                #pragma warning(suppress : 4996) // to allow strcpy
+//                strcpy(screen[curr_row] + curr_col, std::string(Game::MAX_X - curr_col - 1, ' ').c_str());
+//            }
+//            ++curr_row;
+//            curr_col = 0;
+//            continue;
+//        }
+//        if (curr_col < Game::MAX_X) {
+//            // handle special chars
+//            if (c == '@')
+//            {
+//                bombs.push_back(Bomb(false, curr_col, curr_row, -1));
+//            }
+//            else if (c == '\\') 
+//            {
+//                screen_switches[num_switches] = Switch(curr_col, curr_row,false,false);
+//                num_switches++;
+//            }
+//            else if (c == 'L') 
+//            {
+//                l_p.setX(curr_col); 
+//                l_p.setY(curr_row);
+//                screen[curr_row][curr_col] = ' ';
+//            }
+//            else if (c >= '1' && c <= '9')
+//            {
+//                screen_door = Door(curr_col, curr_row,c,1,false);
+//            }
+//
+//            /*else if (c == '*')
+//            {
+//
+//            }
+//
+//            else if (c == '#')
+//            {
+//
+//            }*/
+//
+//            screen[curr_row][curr_col++] = c;
+//        }
+//    }
+//
+//
+//    int last_row = (curr_row < Game::MAX_Y ? curr_row : Game::MAX_Y - 1);
+//
+//    // add a closing frame
+//    // first line
+//    #pragma warning(suppress : 4996) // to allow strcpy
+//    strcpy(screen[0], std::string(Game::MAX_X, 'W').c_str());
+//    screen[0][Game::MAX_X] = '\n';
+//
+//    // last line
+//    #pragma warning(suppress : 4996) // to allow strcpy
+//    strcpy(screen[last_row], std::string(Game::MAX_X, 'W').c_str());
+//    screen[last_row][Game::MAX_X] = '\0';
+//
+//    // first col + last col
+//    for (int row = 1; row < last_row; ++row) {
+//        screen[row][0] = 'W';
+//        screen[row][Game::MAX_X - 1] = 'W';
+//        screen[row][Game::MAX_X] = '\n';
+//    }
+//
+//    screen_legend = Legend(l_p,screen);
+//}
+
+
+void Screen::load(const std::string& filename, int index)
+{
+    Point l_p;
+    std::string firstPart;
+    std::string secondPart;
+    std::ifstream screen_file(filename);
+    if (!screen_file.is_open()) return;
+
+    int curr_row = 0;
+    int curr_col = 0;
+    char c;
+    std::string str;
+
+    for (int i = 0; i < Game::MAX_Y; i++) {
+        for (int j = 0; j < Game::MAX_X; j++) screen[i][j] = ' ';
+        screen[i][Game::MAX_X] = '\0'; 
+    }
+    
+    while (screen_file.get(c) && curr_row < Game::MAX_Y) {
+        if (c == '\r') continue; 
+        if (c == '\n') {
+            curr_row++;
+            curr_col = 0;
+            continue;
+        }
+
+        if (curr_col < Game::MAX_X) {
+            if (c == '@' &&( index == 1 || index == 2)) {
+                bombs.push_back(Bomb(false, curr_col, curr_row, -1));
+                screen[curr_row][curr_col] = '@'; 
+            }
+            else if (c == '\\' && (index == 1 || index == 2)) {
+                screen_switches[num_switches++] = Switch(curr_col, curr_row, false, false);
+                screen[curr_row][curr_col] = '\\';
+            }
+            else if (c == 'L' && (index == 1 || index == 2)) {
+                l_p.setX(curr_col);
+                l_p.setY(curr_row);
+                screen[curr_row][curr_col] = ' '; 
+            }
+            else if (c >= '1' && c <= '9' && (index == 1 || index == 2)) {
+                screen_door = Door(curr_col, curr_row, c, 1, false);
+                screen[curr_row][curr_col] = c;
+            }
+            
+            else {
+                screen[curr_row][curr_col] = c;
+            }
+            curr_col++;
+        }
+
+        
+    }
+
+    int last_row = (curr_row < Game::MAX_Y ? curr_row : Game::MAX_Y - 1);
+    
+    // add a closing frame
+    // first line
+    #pragma warning(suppress : 4996) // to allow strcpy
+    strcpy(screen[0], std::string(Game::MAX_X, 'W').c_str());
+    screen[0][Game::MAX_X] = '\n';
+    
+    // last line
+    #pragma warning(suppress : 4996) // to allow strcpy
+    strcpy(screen[last_row], std::string(Game::MAX_X, 'W').c_str());
+    screen[last_row][Game::MAX_X] = '\0';
+    
+    // first col + last col
+    for (int row = 1; row < last_row; ++row) {
+        screen[row][0] = 'W';
+        screen[row][Game::MAX_X - 1] = 'W';
+        screen[row][Game::MAX_X] = '\n';
+    }
+
+
+    for (int i = 0; i < Game::MAX_Y; i++) {
+        strcpy_s(screen_reset[i], Game::MAX_X + 1, screen[i]);
+    }
+
+
+
+    screen_legend = Legend(l_p, screen);
+
+    //GEMINI
+    while (!std::getline(screen_file,str).eof())
+    {
+        size_t pos = str.find(':');
+
+        if (pos != std::string::npos) {
+            firstPart = str.substr(0, pos);   
+            secondPart = str.substr(pos + 1); 
+        }
+
+        if (firstPart == "NUM_KEYS")
+        {
+            getDoor().setNumKeyNeeded(std::stoi(secondPart));
+        }
+
+        if (firstPart == "LINKED_TO_SWITCHES")
+        {
+            getDoor().setLinkedToSwitches(std::stoi(secondPart));
+        }
+
+        if (firstPart == "SWITCHES_COMB_NEEDED")
+        {
+            int i = 0;
+            while (secondPart[i] != '\0') {
+                if (secondPart[i] != ',') {
+                    screen_switches[i].setIsNeeded((int)secondPart[i]);
+                    i++;
+                }
+            }
+        }
+
+        if (firstPart == "SPRING")
+        {
+
+        }
+    }
+    
 }
 

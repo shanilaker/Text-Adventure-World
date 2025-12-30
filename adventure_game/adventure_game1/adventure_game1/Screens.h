@@ -18,5 +18,8 @@ public:
 
 	//Empty Ctor
 	Screens();
+
+	//Get all the file names of the screens
+	void getAllScreenFileNames(std::vector<std::string>& vec_to_fill);
 };
 

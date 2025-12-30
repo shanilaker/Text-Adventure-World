@@ -119,6 +119,10 @@ public:
 
 	//Checks if the switches is on
 	bool areSwitchesCorrect() const;
+
+
+	//Load the screen from a file
+	void load(const std::string& filename, int index);
 };
 
 

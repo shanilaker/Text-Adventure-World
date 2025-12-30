@@ -17,7 +17,8 @@ public:
 	Legend();
 
 	//Ctor
-	Legend(Point _p, const char* _incoming_screen[Game::MAX_Y]);
+	//Legend(Point _p, const char* _incoming_screen[Game::MAX_Y]);
+	Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 1]);
 
 	//Get point
 	Point getPoint() const { return p; }

@@ -15,7 +15,7 @@ Legend::Legend() : p(Point(0, 0))
 }
 
 //Ctor
-Legend::Legend(Point _p, const char* _incoming_screen[Game::MAX_Y]) : p(_p)
+Legend::Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 1]) : p(_p)
 {
    //Update l_screen
     for (int i = 0; i < Game::MAX_Y; i++)
