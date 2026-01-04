@@ -25,8 +25,11 @@ public:
 	//Set data
 	void setData(int value) { data = value; }
 
+	//Downing the data
+	void downingData() { --data; }
+
 	//Get data
-	int getData() { return data; }
+	int& getData() { return data; }
 
 	//Set x
 	void setX(int _x) { x = _x; }

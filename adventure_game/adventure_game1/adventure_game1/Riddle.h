@@ -51,10 +51,13 @@ public:
 	int getY() const { return y; }
 
 	//Set the x
-	int setX() const { return x; }
+	void setX(int value) { x = value; }
 
 	//Set the y
-	int setY() const { return y; }
+	void setY(int value) { y = value; }
+
+	//Set room_connected
+	void set_room_connected(int value) { room_connected = value; }
 
 	//Get the answer of the riddle
 	char getAnswer() const { return answer; }
@@ -64,5 +67,11 @@ public:
 
 	//Check if player's riddle answer is correct and update game accordingly
 	static void checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& players); 
+
+	//Load the riddle screen from a file
+	void load(const std::string& filename);
+
+	//Update out of the riddle screen values
+	void updateOutValues(std::string str, char c);
 };
 

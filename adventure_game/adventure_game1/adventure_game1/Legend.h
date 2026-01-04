@@ -17,7 +17,6 @@ public:
 	Legend();
 
 	//Ctor
-	//Legend(Point _p, const char* _incoming_screen[Game::MAX_Y]);
 	Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 1]);
 
 	//Get point
@@ -33,6 +32,9 @@ public:
 	bool get_on_objects() const { return on_objects; }
 
 	//Update the legend values
-	void update_values(char ch, vector<Player>& players);
+	void update_values(char ch, vector<Player>& players, Screen& cur_screen);
+
+	//If the point is in the legend
+	bool isPointInLegend(int x, int y) const;
 };
 

@@ -1,29 +1,30 @@
-LWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+LWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 W               W                                 W       W                    W
 W               W                                         W                    W
 W               W                                         W                    W  
 W               W                                         W                    W
 W               W                                         W                    W
 WWWWWWWWWWWWWWWWW                                         W                    W
-W                                                         W     WWWWWWWWWWWWWWWW
-W                                 K                                            W
+           K                                              W     WWWWWWWWWWWWWWWW
+W                                                                            W
 W                                                 W                            W
 W                                                 W                            W
-WWWWWWWWWWWWWWWWW?WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWW
-W@                                                W                            W
-W                                                 W                            W
-W                                                 W     WWWWWWWWWWWWWWWWWWWWWWWW
-W###                          K                   W     W                      W
-W                                                 W     W       WWWWWWWWWWWWWWWW
-W                                                 W     ?       W              W
-W                                                 W     W       W              W
-W                                  WWWWWWWWWWWWWWWW     W       W     WWWWW***WW
-W                                  W              *     W       W     W        W
-W       @                  ?       W       K      *     W       W     W        W    
-W                                  W###           *     W             W        W
-W                                                 *     W       W     W       7W   
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWW
+W                                                                             W
+W                                      *****                             W
+W                ****                                                         WW
+W###                          K                                 ?              W
+W                  ?                                  ******                  WW
+W                                                          *                   W
+W                                                          *                   W
+W                                  WWWWWWWWWWWWWWW         *                   W
+W                                  W                       *                   W
+W       @            @             W       K               ****       @        W    
+W                                  W###                                        W
+W                                                                     KKK     7W   
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-NUM_KEYS:3
-LINKED_TO_SWITCHES:0
-SWITCHES_COMB_NEEDED:0,1,0
-SPRING:{1,15,3,RIGHT},{36,22,3,RIGHT}
+END_POS:77,23
+DOOR_7_DEST:2
+DOOR_7_KEYS:2
+DOOR_7_LINKED:0
+START_POS:1,22

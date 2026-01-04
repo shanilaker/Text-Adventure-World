@@ -9,6 +9,7 @@ class Switch
 	char off_char = '\\';
 	bool is_active = true;
 	bool is_needed = true;
+	char target_door_id = '0';
 public:
 
 	//Empty ctor
@@ -46,6 +47,12 @@ public:
 
 	// Set whether switch is needed to open door
 	void setIsNeeded(bool isneeded) { is_needed = isneeded; }
+
+	//Set the TargetDoorId
+	void setTargetDoorId(char id) { target_door_id = id; }
+
+	//Get the TargetDoorId
+	char getTargetDoorId() const { return target_door_id; }
  };
 
 

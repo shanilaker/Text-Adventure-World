@@ -1,6 +1,6 @@
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+LWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 W                  W                                                           W  
-L                  W                                                           W
+W                  W                                                           W
 W                  W                                                           W 
 W                  W                                                           W 
 W                  W                                                           W
@@ -8,18 +8,32 @@ W                  W                                                           W
 W                  W                         WWWWWWWWWWWWWWWWWWWWWWWW     WWWWWW
 WWWWWWWWWWWWWWWWWWWW                         W                 ?       @       W
 W                                            W                                 W
-W         \\                                  W                                 
+W         \                                  W                                 
 W                                            W                 WWWWWWWWWWWWWWWWW
 W                                            W                 W               W
-W                                            W              WWWW        \\          
+W                              5             W              WWWW        \          
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW              W                  W
 W@                                           *              W                  W
 W                         ?                  *              W***WWWWWWWWWWWWWWWW
 W                                            *        WWWWWWW      W           W
-W                                            *        W            W    \\           
+W                                            *        W            W    \           
 W          W                                 *        W            W           W
 W          WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW           W            W
 W           !                                             ?   WWWW             W
 W          WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                W
-W            !                                                                9W
+W7           !                                                                9W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+START_POS:2,23
+END_POS:77,23
+DOOR_7_DEST:1
+DOOR_7_KEYS:0
+DOOR_7_LINKED:0
+DOOR_5_DEST:3
+DOOR_5_KEYS:0
+DOOR_5_LINKED:0
+DOOR_9_DEST:4
+DOOR_9_KEYS:0
+DOOR_9_LINKED:1
+DOOR_9_SWITCHES:0,1,2
+DOOR_9_COMB:0,1,0
+IS_DARK:1

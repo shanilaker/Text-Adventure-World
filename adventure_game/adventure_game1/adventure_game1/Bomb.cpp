@@ -32,6 +32,7 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 		for (auto& p : players) 
 		{
 			p.checkAndkill(bomb_x, bomb_y, game_state);
+			cur_screen.get_screen_legend().update_values(p.get_char(), players, cur_screen);
 		}
 	
 		//Erasing the walls - change to only inside the board
@@ -54,7 +55,7 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 				if (target_char <= '9' && target_char >= '1')
 				{
 					//Erase
-					current_screen.getDoor().kill();
+					current_screen.getDoor(target_char).kill();
 					current_screen.setCharAt(x_, y_, ' ');
 					game_state = LOSE;
 				}

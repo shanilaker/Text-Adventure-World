@@ -45,9 +45,9 @@ public:
     void run();
 
     // Updates player positions, checks for movement triggers
-    void updatePlayers(Screen& current_screen, vector<Player>& players, bool& riddle_triggered, Game& the_game);
+    void updatePlayers(Screen& current_screen, vector<Player>& players, bool& riddle_triggered, Game& the_game, int current_room);
 
     // Prepares next screen and player positions for it
-    void prepareNextRoom(Screen& next_screen, vector<Player>& players);
+    void prepareNextRoom(Screen& next_screen, vector<Player>& players, const Point& spawnPoint, int current_room);
 };
 

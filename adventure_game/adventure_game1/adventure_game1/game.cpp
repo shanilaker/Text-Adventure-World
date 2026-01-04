@@ -11,6 +11,9 @@ void Game::run()
 	Screens screens; // Initialize the screens manager
 	Menu menu_handler(screens); // Initialize the menu handler with access to screens
 
+	int game_state = MENU;
+	int current_room = MENU;
+
 	screens.getgame_screens()[MENU].draw();
 	// Initialize two players with their start positions, symbols and keysets
 	vector<Player> players;
@@ -23,8 +26,7 @@ void Game::run()
 	}
 
 
-	int game_state = MENU;
-	int current_room = MENU;
+	
 
 	//Main game loop until player chose EXIT
 	while (game_state != GameState::EXIT) {
@@ -85,7 +87,7 @@ void Game::run()
 			}
 
 			// Update player positions, movement and check for triggers
-			updatePlayers(current_screen, players, riddle_triggered, *this);
+			updatePlayers(current_screen, players, riddle_triggered, *this, current_room);
 			cout.flush();
 
 			// Handle riddle trigger event
@@ -100,19 +102,55 @@ void Game::run()
 				}
 			}
 			// Check if room was completed (both players moved)
-			if (current_screen.get_players_moved() == 2) {
-				cls();
-				current_room++; // Move to next room index
-				auto& next_screen = screens.getgame_screens()[current_room];
+			bool current_room_is_empty = true;
+			for (auto& p : players) {
+				if (p.getIsActive() && !p.isWaiting() && p.getCurrentRoomID() == current_room) {
+					current_room_is_empty = false;
+					break;
+				}
+			}
 
-				// Check if the next room is the end game screen
-				if (current_room == 3) {
+			if (current_room_is_empty && current_screen.get_players_moved() > 0) {
+				cls();
+
+				int prev_room = current_room;
+				int next_room_index = -1;
+
+				bool all_at_end = true;
+				for (auto& p : players) {
+					if (p.getIsActive() && p.getCurrentRoomID() != 4) {
+						all_at_end = false;
+					}
+				}
+
+				if (all_at_end) {
+					next_room_index = 4;
 					game_state = END_GAME;
-					next_screen.draw();
 				}
 				else {
-					// Prepare the next playing room
-					prepareNextRoom(next_screen, players);
+					for (auto& p : players) {
+						if (p.getIsActive() && p.getCurrentRoomID() != prev_room) {
+							next_room_index = p.getCurrentRoomID();
+						}
+					}
+				}
+
+				if (next_room_index != -1) {
+					screens.getgame_screens()[prev_room].reset_players_moved(); // reset previous room counter of players moved
+
+					current_room = next_room_index;
+					auto& next_screen = screens.getgame_screens()[current_room];
+
+					Point spawnPoint = (current_room > prev_room) ? next_screen.getStartPos() : next_screen.EndPos();
+
+					// Check if the next room is the end game screen
+					if (game_state == END_GAME) {
+						next_screen.draw();
+					}
+					else {
+						// Prepare the next playing room
+						prepareNextRoom(next_screen, players, spawnPoint, current_room);
+					}
 				}
 			}
 			setRuntime(); // Update game runtime/cycles
@@ -123,7 +161,7 @@ void Game::run()
 }
 
 // Updates player positions, checks for movement triggers
-void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& riddle_triggered, Game& the_game)
+void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& riddle_triggered, Game& the_game, int current_room)
 {
 	//Update obstacle parameters
 	for (auto& obstacle : current_screen.get_obstacles())
@@ -139,7 +177,7 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 
 	for (auto& p : players) 
 	{
-		if (p.getIsActive()) {
+		if (p.getIsActive() && p.getCurrentRoomID() == current_room && !p.isWaiting()) {
 			Player& other = (&p == &players[0]) ? players[1] : players[0];
 			// Clear player's previous position
 			if (!p.isWaiting() && !p.getJustDisposed()) {
@@ -169,22 +207,27 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 	}
 
 	
-	
 }
+
 // Prepares next screen and player positions for it 
-void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players)
+void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const Point& spawnPoint, int current_room)
 {
 	next_screen.draw();
-	for (auto& p : players) 
+	for (auto& p : players)
 	{
-		if (p.getIsActive()) 
+		if (p.getIsActive())
 		{
-			// Set player position to room's default coordination and draw it
-			p.setPosition(next_screen.getDefault_x(), next_screen.getDefault_y());
-			p.setDirection(Direction::STAY);
-			p.draw();
+			if (p.getCurrentRoomID() == current_room)
+			{
+				// Set player position to room's default coordination and draw it
+				p.setPosition(spawnPoint);
+				p.setDirection(Direction::STAY);
+				p.draw();
+			}
+			else {
+				// if player is active but not in this room,  hide it.
+				p.hideForTransition();
+			}
 		}
 	}
-	
-	
 }

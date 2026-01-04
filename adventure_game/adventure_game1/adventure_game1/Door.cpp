@@ -18,3 +18,8 @@ void Door::openDoor()
 	}
 
 }
+
+void Door::setNumKeyNeeded(int num_needed) 
+{ 
+	num_key_needed = num_needed; reset_num_key_needed = num_needed; 
+}
