@@ -1,5 +1,9 @@
 #include "Riddle.h"
 #include "Screen.h"
+#include<fstream>
+#include <iostream>
+#include <string>
+#include <sstream>
 
 // Riddle constructor
 Riddle::Riddle(const char* r_text[Game::MAX_Y], int r_x, int r_y,int r_room_connected, char the_answer): x(r_x), y(r_y), room_connected(r_room_connected), answer(the_answer)
@@ -81,7 +85,7 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
 
     for (auto& p : players) 
     {
-        cur_screen.get_screen_legend().update_values(p.get_char(), players);
+        cur_screen.get_screen_legend().update_values(p.get_char(), players,cur_screen);
     }
 
 }
@@ -91,5 +95,82 @@ void Riddle::reset()
     is_active = true;
     activated = false;
 }
+
+
+//From tirgul with amir
+void Riddle::load(const std::string& filename)
+{
+    Point l_p;
+    std::ifstream screen_file(filename);
+    if (!screen_file.is_open()) return;
+
+    int curr_row = 0;
+    int curr_col = 0;
+    char c;
+    std::string str;
+
+    for (int i = 0; i < Game::MAX_Y; i++) {
+        for (int j = 0; j < Game::MAX_X; j++) text[i][j] = ' ';
+        text[i][Game::MAX_X] = '\0';
+    }
+
+    while (screen_file.get(c) && curr_row < Game::MAX_Y) {
+
+        if (c == '\n') {
+            if (curr_col < Game::MAX_X) {
+                // add spaces for missing cols
+                #pragma warning(suppress : 4996) // to allow strcpy
+                strcpy(text[curr_row] + curr_col, std::string(Game::MAX_X - curr_col - 1, ' ').c_str());
+            }
+            curr_row++;
+            curr_col = 0;
+            continue;
+        }
+
+        if (curr_col < Game::MAX_X) {
+            text[curr_row][curr_col] = c;
+            curr_col++;
+        }
+
+
+    }
+    //GEMINI
+    while (std::getline(screen_file, str))
+    {
+        if (str.length() < 3) continue;
+
+        updateOutValues(str, c);
+    }
+
+    screen_file.close();
+}
+
+void Riddle::updateOutValues(std::string str, char c)
+{
+    std::string firstPart;
+    std::string secondPart;
+
+    int pos = -1;
+
+    for (int j = 0; j < (int)str.length(); j++) {
+        if (str[j] == ':') {
+            pos = j;
+            break;
+        }
+    }
+
+    if (pos != -1) {
+        firstPart = c + str.substr(0, pos);
+        secondPart = str.substr(pos + 1);
+
+        if (firstPart == "ANSWER")
+        {
+            answer = secondPart[0];
+        }
+        
+    }
+}
+
+
 
 

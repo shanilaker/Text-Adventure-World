@@ -20,7 +20,7 @@ class Bomb
 
 public:
 	//Ctor
-	Bomb(bool bomb_activated, int the_x, int the_y, int initial_time) :is_activated(bomb_activated), x(the_x), y(the_y), time_to_explode(initial_time), is_active(true),r_x(the_x), r_y(the_y) {}
+	Bomb(bool bomb_activated, int the_x, int the_y, int initial_time) :is_activated(bomb_activated), x(the_x), y(the_y), r_x(the_x), r_y(the_y), time_to_explode(initial_time), is_active(true){}
 
 	//Empty ctor
 	Bomb(){}

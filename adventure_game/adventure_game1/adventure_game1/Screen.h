@@ -9,6 +9,7 @@
 #include"Obstacle.h"
 #include "Legend.h"
 #include "Spring.h"
+#include "Riddles.h"
 
 using std::cout, std::endl;
 
@@ -16,32 +17,28 @@ using std::cout, std::endl;
 class Player;
 class Screen 
 {
-public:
-	enum { MAX_SWITCHES = 10 };
-	enum { MAX_SPRINGS = 5 };
-private:
-	//Riddle screen_riddle;
 	char screen[Game::MAX_Y][Game::MAX_X + 1];
 	char screen_reset[Game::MAX_Y][Game::MAX_X + 1];
-	Door screen_door;
+	vector<Door> screen_doors;
 	int players_moved = 0;
-	int default_x = -1;
-	int default_y = -1;
-	Switch screen_switches[MAX_SWITCHES];
-	int num_switches = 0;
+	Point startPos{ 0, 0 };
+	Point endPos{ 0, 0 };
+	vector<Switch> switches;
 	Legend screen_legend;
 	vector<Bomb> bombs;
 	vector<Obstacle> obstacles;
 	vector<Riddle> riddles;
-	Spring screen_springs[MAX_SPRINGS];
-	int num_springs = 0;
+	vector<Spring> springs;
 	bool is_dark = false;
+	int legend_count = 0;
+
 public:
+
 	//Empty ctor
 	Screen();
 
 	//Ctor
-	Screen(const char* the_screen[Game::MAX_Y], Door the_screen_door, int the_default_x, int the_default_y, const Switch the_switches[], int count, Legend _screen_legend, vector<Bomb>& _bombs, vector<Obstacle>& _obstacles, vector<Riddle>& _riddles, const Spring the_springs[], int spring_count);
+	Screen(const char* the_screen[Game::MAX_Y], vector<Door> screen_doors, Point startPoint, Point endPoint, vector<Switch> the_switches, Legend _screen_legend, vector<Bomb>& _bombs, vector<Obstacle>& _obstacles, vector<Riddle>& _riddles, vector<Spring>& the_springs);
 
 	//Ctor
 	Screen(const char* the_screen[Game::MAX_Y]);
@@ -56,10 +53,10 @@ public:
 	void draw() const;
 
 	//Get the springs
-	Spring* getSprings() { return screen_springs; }
+	vector<Spring>& getSprings() { return springs; }
 
 	// Get the number of springs
-	int getNumSprings() const { return num_springs; }
+	size_t getNumSprings() const { return springs.size(); }
 
 	// Set springs back after spring activated
 	void restoreSprings();
@@ -82,17 +79,20 @@ public:
 	//Set the char at this location
 	void setCharAt(const int& x, const int& y, const char& ch);
 
+	//Create the obstacles from the file we loaded
+	void createObstacbles(vector<Obstacle>& obstacles);
+
 	//Get the char at this location
 	char getCharAt(const int& x, const int& y) const;
 
 	//Set the door at this location
-	Door& getDoor(){ return screen_door; }
+	Door& getDoor(char door_number);
 
-	//Get the default x
-	int& getDefault_x() { return default_x; }
+	//Get the start point
+	Point& getStartPos() { return startPos; }
 
-	//Get the default y
-	int& getDefault_y(){ return default_y; }
+	//Get the end point
+	Point& EndPos() { return endPos; }
 
 	//Get the number of players that moved
 	int& get_players_moved() { return players_moved; }
@@ -100,29 +100,56 @@ public:
 	//Set the number of players that moved
 	void set_player_moved(){ players_moved++; }
 
+	//Reset the number of players that moved
+	void reset_players_moved() { players_moved = 0; }
+
 	//Get the obstacles
 	vector<Obstacle>& get_obstacles() { return obstacles; }
 
 	//Get the bombs
 	vector<Bomb>& get_bombs() { return bombs; }
 
+	//Get the screen board
+	char (*getBoard())[Game::MAX_X + 1] { return screen; }
 
 	//Get the switches
-	Switch* getSwitches() { return screen_switches; }
+	vector<Switch>& getSwitches() { return switches; }
 
 	//Get the number of switches
-	int getNumSwitches() const { return num_switches; }
+	size_t getNumSwitches() const { return switches.size(); }
 
 	//Get the screen legend
 	Legend& get_screen_legend() { return screen_legend; }
 
-
 	//Checks if the switches is on
-	bool areSwitchesCorrect() const;
-
+	bool areSwitchesCorrect(char door_id) const;
 
 	//Load the screen from a file
-	void load(const std::string& filename, int index);
+	void load(const std::string& filename, int index, Riddles& riddles_array);
+
+	//Update screen values
+	void update_values(char c, int index, int curr_col, int curr_row, Point& l_p);
+
+	//Update out of the screen values
+	void updateOutValues(std::ifstream& screen_file, char c);
+
+	//Create the screen frame
+	void createFrame(int last_row);
+
+	//Count the number of legend the screen designer add to the screen
+	int get_legend_count() const { return legend_count; }
+
+	//If the player is on the legand
+	bool isPlayerOverlappedWithLegend() const;
+
+	//Add the obstacle body to an obstacle on the screen
+	void addBody(int i, int j, vector<Point>& r_body);
+
+	//If we already visited this point
+	bool visited(int _x, int _y, vector<Point> visited);
+
+	// Locate and create the springs on the screen
+	void findSpringsInScreen();
 };
 
 

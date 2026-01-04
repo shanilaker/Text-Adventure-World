@@ -13,7 +13,7 @@ private:
 public:
 
 	//Ctor
-	Key(int x1, int y1, int the_id);
+	Key(int x1, int y1, int the_id) : x(x1), y(y1), id(the_id){}
 
 	//Empty ctor
 	Key(){}

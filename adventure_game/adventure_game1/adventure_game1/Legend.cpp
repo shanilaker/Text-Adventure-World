@@ -55,7 +55,7 @@ Legend::Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 
 }
 
 //Update the legend values
-void Legend::update_values(char ch, vector<Player>& players)
+void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
 {
     for (size_t i = 0; i < players.size(); i++)
     {
@@ -64,18 +64,20 @@ void Legend::update_values(char ch, vector<Player>& players)
         {
             int row = (i == 0) ? p.getY() + 1 : p.getY() + 3;
             int holdX = p.getX() + 61; 
+            int lifeX = p.getX() + 23;
 
-            gotoxy(holdX, row);
-
-            
             char itemToShow = players[i].getHeldItem();
             if (itemToShow == '\0') {
-                std::cout << ' ';
+                cur_screen.setCharAt(holdX, row, ' ');
             }
             else {
-                std::cout << itemToShow;
+                cur_screen.setCharAt(holdX, row, itemToShow);
             }
 
+            std::string s = std::to_string(players[i].getLife().getData());
+            const char* c = s.c_str();
+
+            cur_screen.setCharAt(lifeX, row, *c);
             break;
         }
     }
@@ -119,6 +121,8 @@ void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& play
     writeAt(l_x + 1, l_y + 1, p1_header);
     writeAt(l_x + 1, l_y + 3, p2_header);
 
+    
+
     for (int i = 0; i < 2; i++) {
         int row = (i == 0) ? l_y + 1 : l_y + 3;
 
@@ -140,4 +144,12 @@ void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& play
         char itemStr[2] = { players[i].getHeldItem(), '\0' };
         writeAt(holdX, row, itemStr);
     }
+
+  
+}
+
+bool Legend::isPointInLegend(int x, int y) const {
+    int lx = p.getX();
+    int ly = p.getY();
+    return (x >= lx && x < lx + 76 && y >= ly && y < ly + 5);
 }

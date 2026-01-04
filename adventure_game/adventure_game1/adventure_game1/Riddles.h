@@ -16,5 +16,8 @@ public:
 
 	//Empty ctor
 	Riddles();
+
+	//Get all the file names of the riddles
+	void getAllRiddleFileNames(std::vector<std::string>& vec_to_fill);
 };
 

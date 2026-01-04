@@ -5,7 +5,7 @@
 vector<Player> Player::players;
 
 //Player constructor
-Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) :x(x1), y(y1), diff_x(diffx), diff_y(diffy),ch(c), current_room_id(room_id),reset_valueX(x1),reset_valueY(y1),diff_valueX(diffx),diff_valueY(diffy),life(Point(100)),score(Point(0))
+Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) :x(x1), y(y1), diff_x(diffx), diff_y(diffy),ch(c), current_room_id(room_id),reset_valueX(x1),reset_valueY(y1),diff_valueX(diffx),diff_valueY(diffy),life(Point(3)),score(Point(0))
 {
 	memcpy(keys, the_keys, NUM_KEYS * sizeof(keys[0]));
 	riddleSolved = solvedRiddle;
@@ -22,7 +22,7 @@ void Player::setHeldItem(char item, Screen& cur_screen)
 		}
 	}
 
-	cur_screen.get_screen_legend().update_values(ch, players);
+	cur_screen.get_screen_legend().update_values(ch, players,cur_screen);
 }
 
 void Player::checkAndkill(int bomb_x, int bomb_y, int& game_state)
@@ -37,8 +37,12 @@ void Player::checkAndkill(int bomb_x, int bomb_y, int& game_state)
 	//Eliminates a player if they are still alive and within 3 yards in any direction.
 	if (max_dist <= 3 && is_active)
 	{
-		kill();
-		game_state = LOSE;
+		life.downingData();
+		if (life.getData() == 0)
+		{
+			kill();
+			game_state = LOSE;
+		}
 	}
 }
 
@@ -53,7 +57,7 @@ void Player::reset()
 	is_active = true;
 	current_room_id = 1;
 	solvedRiddle = -2;
-	life.setData(100);
+	life.setData(3);
 	score.setData(0);
 }
 
@@ -66,10 +70,10 @@ void Player::hideForTransition()
 }
 
 // Places player on a (x,y) on the screen
-void Player::setPosition(const int& x1, const int& y1)
+void Player::setPosition(const Point& start)
 {
-	x = x1;
-	y = y1;
+	x = start.getX();
+	y = start.getY();
 	setDirection(Direction::STAY);
 }
 
@@ -98,11 +102,6 @@ void Player::draw(const char & c) const {
 // Reponsible for the player move, calculates his next (x,y) based on speed, direction, and items that appear on its way
 bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 {
-
-	// Calculate the next (x,y) the player will be placed at
-	/*int next_x = (x + diff_x + Game::MAX_X) % Game::MAX_X;
-	int next_y = (y + diff_y + Game::MAX_Y) % Game::MAX_Y;*/
-
 	int cur_speed = (boost_time > 0) ? boost_speed : 1;
 
 	// Calculate the next (x,y) the player will be placed at
@@ -123,6 +122,10 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 		}
 
 		char step_char = cur_screen.getCharAt(temp_x, temp_y);
+
+		if (step_char == '*') {
+			move_to_obstacle(cur_screen, players, temp_x, temp_y);
+		}
 
 		if (step_char == 'W') {
 			hit_obstacle = true;
@@ -245,7 +248,7 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 	// If target is door
 	else if (target_char >= '1' && target_char <= '9') {
 
-		Door& door = cur_screen.getDoor();
+		Door& door = cur_screen.getDoor(target_char);
 		return move_to_door(door, cur_screen);
 	}
 
@@ -297,8 +300,8 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 
 bool Player::move_to_switch(const int& next_x, const int& next_y, Screen& cur_screen)
 {
-	Switch* switches = cur_screen.getSwitches();
-	int num_switches = cur_screen.getNumSwitches();
+	auto& switches = cur_screen.getSwitches();
+	size_t num_switches = cur_screen.getNumSwitches();
 
 	// search for the switch of the current room
 	for (int i = 0; i < num_switches; ++i) {
@@ -361,57 +364,26 @@ bool Player::move_to_riddle(const int& next_x, const int & next_y, Screen& cur_s
 bool Player::move_to_door(Door& door, Screen& cur_screen)
 {
 	if (!door.getisActive())
-	{
 		return false;
-	}
-	// If door is already open
-	if (door.isOpen())
-	{
-		// Count the player as moved to next level
-		cur_screen.set_player_moved();
-		if (cur_screen.get_players_moved() < 2) { //If first player to pass door then hide it until next one passes
-			draw(' ');
-			hideForTransition();
-		}
-		return false;
-	}
-	// If door is linked to switches and they're not ON
-	if (door.isLinkedToSwitches() && !cur_screen.areSwitchesCorrect()) {
-		setDirection(Direction::STAY);
-		return false;
-	}
 
-	// If door is linked ONLY to switches and they're correct (all ON)
-	if (door.isLinkedToSwitches() && door.getNumKeyNeeded() == 0)
-	{
-		door.openDoor();
-		cur_screen.set_player_moved();
-		if (cur_screen.get_players_moved() < 2)
-		{
-			draw(' ');
-			hideForTransition();
-		}
-		return false;
-	}
-
-	// If door still required keys and player has one
 	if (door.getNumKeyNeeded() > 0 && getHeldItem() == 'K') {
+		door.openDoor();
+		setHeldItem('\0', cur_screen);
+	}
 
-		setHeldItem('\0', cur_screen); //Take key from player and update legend
-		door.openDoor(); //Attempt to open door
+	bool switches_ok = !door.isLinkedToSwitches() || cur_screen.areSwitchesCorrect(door.getChar());
 
-		if (door.isOpen()) // If door opened - let player in 
-		{
-			cur_screen.set_player_moved();
-			if (cur_screen.get_players_moved() < 2)
-			{
-				draw(' ');
-				hideForTransition();
-			}
+	if ((door.isOpen() || door.getNumKeyNeeded() == 0) && switches_ok)
+	{
+		this->current_room_id = door.getTargetRoom();
+		cur_screen.set_player_moved();
+
+		if (cur_screen.get_players_moved() < 2) {
+			draw(' ');
+			hideForTransition();
 		}
 		return false;
 	}
-
 	//if you don't have the key, stay in place
 	setDirection(Direction::STAY);
 	return false;
@@ -434,7 +406,7 @@ bool Player::move_to_obstacle(Screen& cur_screen, vector<Player>& _players,int _
 			}
 
 			//If we need to move the Obstacle: someone already toach + the needed force + the right direction 
-			if (obstacle.get_force_needed() == 0 && moved_obstacle && obstacle.get_wanted_d() == p_dir)
+			if (obstacle.get_force_needed() <= 0 && moved_obstacle && obstacle.get_wanted_d() == p_dir)
 			{
 				obstacle.set_diff_x(diff_x);
 				obstacle.set_diff_y(diff_y);

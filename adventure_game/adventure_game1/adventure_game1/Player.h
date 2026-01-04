@@ -120,7 +120,7 @@ public:
 	int getCurrentRoomID() const { return current_room_id; }
 	
 	//Set the position of the player
-	void setPosition(const int& x1, const int& y1);
+	void setPosition(const Point& start);
 
 	//Set the current room the player is in
 	void setCurrentRoomID(int new_room_id) { current_room_id = new_room_id; }

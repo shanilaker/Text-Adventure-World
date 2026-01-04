@@ -8,11 +8,12 @@
 class Screen;
 class Obstacle
 {
+	
+	int x = 1, y = 1;
+	int diff_x = 0, diff_y = 0;
+	int r_x = 1, r_y = 1;
 	int force_needed = 1;
 	int reset_force_needed = 1;
-	int x = 1, y = 1;
-	int r_x = 1, r_y = 1;
-	int diff_x = 0, diff_y = 0;
 	bool is_moved = false;
 	Direction wanted_d = Direction::STAY;
 	vector<Point> body;
@@ -23,13 +24,13 @@ public:
 	Obstacle() {}
 
 	//Ctor
-	Obstacle(int _x, int _y, int _diff_x, int _diff_y,int _force_needed,vector<Point> _body) :x(_x), y(_y), diff_x(_diff_x), diff_y(_diff_y),reset_force_needed(_force_needed), force_needed(_force_needed), body(_body), r_x(x), r_y(y), r_body(body){}
+	Obstacle(int _x, int _y, int _diff_x, int _diff_y,int _force_needed,vector<Point> _body) :x(_x), y(_y), diff_x(_diff_x), diff_y(_diff_y), r_x(x), r_y(y), force_needed(_force_needed), reset_force_needed(_force_needed), body(_body), r_body(body){}
 
 	//Get the force
 	int get_force_needed() const { return force_needed; }
 
 	//Get the body
-	vector<Point> get_body() const { return body; }
+	vector<Point>& get_body() { return body; }
 
 	//Get the reset force
 	int get_reset_force() const { return reset_force_needed; }
