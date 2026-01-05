@@ -18,6 +18,8 @@ class Riddle
 	char answer = -1;
 	bool is_active = true;
 	bool activated = false;
+	char player_activated = '*';
+
 public:
 
 	//Ctor
@@ -29,6 +31,9 @@ public:
 	//Show the riddle on the screen
 	void Show_Riddle() const;
 
+	//Get player_activated
+	char get_player_activated() const { return player_activated; }
+
 	//Get is active
 	bool getisActive() const { return is_active; }
 
@@ -37,6 +42,9 @@ public:
 
 	//Set activated
 	void setActivated(bool value) { activated = value; }
+
+	//Set player_activated
+	void set_player_activated(char value) { player_activated = value; }
 
 	//Reset riddle
 	void reset();

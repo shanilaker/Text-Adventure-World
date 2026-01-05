@@ -35,6 +35,9 @@ public:
 	//Get the reset force
 	int get_reset_force() const { return reset_force_needed; }
 
+	//Set the reset force
+	void set_reset_force(int value) { reset_force_needed = value; }
+
 	//If this is in the length of the body
 	bool occupies(int x, int y) const;
 

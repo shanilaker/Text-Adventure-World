@@ -155,10 +155,11 @@ GameState Menu::testing(bool not_vaild_over_screen, bool not_vaild_on_objects)
 
     //If we have more '?' than riddles
     size_t total_riddles = screens.getTotalRiddlesCount();
-    if (total_riddles > 6)
+    int ridlles_files = screens.getTotalRiddleScreensCount();
+    if (total_riddles > ridlles_files)
     {
         gotoxy(15, 10);
-        std::cout << "Error: Too many riddles in the game! (Max: 6, Found: " << total_riddles << ")";
+        std::cout << "Error: Too many riddles in the game! (Max: " << ridlles_files<< ", Found: " << total_riddles << ")";
         return GameState::MENU;
     }
 
@@ -190,6 +191,8 @@ GameState Menu::testing(bool not_vaild_over_screen, bool not_vaild_on_objects)
         cout << "Error: Legend is placed out of screen bounds!";
         return GameState::MENU;
     }
+
+    
 
     return GameState::PLAYING;
 }

@@ -202,7 +202,10 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     legend_count = 0;
     Point l_p;
     std::ifstream screen_file(filename);
-    if (!screen_file.is_open()) return;
+
+    if (!screen_file.is_open()) {
+        throw std::runtime_error("Critical Error: Screen file " + filename + " not found!");
+    }
 
     int curr_row = 0;
     int curr_col = 0;
@@ -236,9 +239,20 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
         
     }
 
+    if (curr_row == 0) {
+        throw std::runtime_error("Error: Screen file " + filename + " contains no data!");
+    }
+
     int last_row = (curr_row < Game::MAX_Y ? curr_row : Game::MAX_Y - 1);
     
     createObstacbles(obstacles);
+
+    for (auto& o : obstacles) 
+    {
+        o.set_to_force_needed(static_cast<int>(o.get_body().size()));
+        o.set_reset_force(static_cast<int>(o.get_body().size()));
+    }
+
 
     findSpringsInScreen();
 
@@ -251,12 +265,15 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
             for (int j = 0; j < Game::MAX_X; j++) {
                 if (screen[i][j] == '?')
                 {
-                    Riddle& r = riddles_array.getgame_riddles().back();
-                    r.setX(j);
-                    r.setY(i);
-                    r.set_room_connected(index);
-                    riddles.push_back(r);
-                    riddles_array.getgame_riddles().pop_back();
+                    if (!riddles_array.getgame_riddles().empty())
+                    {
+                        Riddle& r = riddles_array.getgame_riddles().back();
+                        r.setX(j);
+                        r.setY(i);
+                        r.set_room_connected(index);
+                        riddles.push_back(r);
+                        riddles_array.getgame_riddles().pop_back();
+                    }
                 }
             }
         }
@@ -270,14 +287,11 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     screen_legend = Legend(l_p, screen);
 
     //GEMINI
-    //bool isFirstLine = true;
-    //if (str.length() < 3) continue;
-        /*if (isFirstLine) {
-            updateOutValues(str, c, screen_file);
-            isFirstLine = false;
-        }
-        else {*/
     updateOutValues(screen_file,c);
+
+    if (startPos.getX() == -1 || endPos.getX() == -1) {
+        throw std::runtime_error("Error: Screen file " + filename + " is missing START_POS or END_POS!");
+    }
 
     screen_file.close();
 }
@@ -422,68 +436,7 @@ void Screen::updateOutValues(std::ifstream& screen_file, char c)
     }
 }
 
-//void Screen::updateOutValues(std::string str, char c)
-//{
-//    std::string firstPart;
-//    std::string secondPart;
-//
-//    int pos = -1;
-//
-//    for (int j = 0; j < (int)str.length(); j++) {
-//        if (str[j] == ':') {
-//            pos = j;
-//            break;
-//        }
-//    }
-//
-//    if (pos != -1) {
-//        if (c != '\0') {
-//            firstPart = c + str.substr(0, pos);
-//        }
-//        else {
-//            firstPart = str.substr(0, pos);
-//        }
-//        secondPart = str.substr(pos + 1);
-//
-//        if (firstPart == "NUM_KEYS")
-//        {
-//            screen_door.setNumKeyNeeded(std::stoi(secondPart));
-//            screen_door.setResetNumKeyNeeded(std::stoi(secondPart));
-//        }
-//        if (firstPart == "PLAYERS_START_AT")
-//        {
-//            std::stringstream ss(secondPart);
-//            std::string segment;
-//            int values[2];
-//            int i = 0;
-//
-//            while (std::getline(ss, segment, ',') && i < 2) {
-//                values[i] = std::stoi(segment);
-//                i++;
-//            }
-//
-//            if (i == 2) {
-//                startPos.setX(values[0]);
-//                startPos.setY(values[1]);
-//            }
-//        }
-//        else if (firstPart == "LINKED_TO_SWITCHES")
-//        {
-//            screen_door.setLinkedToSwitches(std::stoi(secondPart));
-//        }
-//        else if (firstPart == "SWITCHES_COMB_NEEDED")
-//        {
-//            int sw_idx = 0;
-//            for (int char_i = 0; char_i < (int)secondPart.length(); char_i++) {
-//                if (secondPart[char_i] != ',' && sw_idx < num_switches) {
-//
-//                    screen_switches[sw_idx].setIsNeeded(secondPart[char_i] - '0');
-//                    sw_idx++;
-//                }
-//            }
-//        }
-//    }
-//}
+
 
 bool Screen::isPlayerOverlappedWithLegend() const {
     return screen_legend.isPointInLegend(startPos.getX(), startPos.getY());

@@ -22,6 +22,11 @@ Riddles::Riddles()
 	//Update the riddles from a file
 	std::vector<std::string> fileNames;
 	getAllRiddleFileNames(fileNames);
+
+	if (fileNames.empty()) {
+		throw std::runtime_error("No .riddle files found in the directory!");
+	}
+
 	for (const auto& filename : fileNames)
 	{
 		Riddle r;       
