@@ -20,13 +20,14 @@ void Game::run()
 	players.push_back(Player(20, 20, 0, 0, '$', "wdxase", 0, false));
 	players.push_back(Player(10, 10, 0, 0, '&', "ilmjko", 0, false));
 
+
 	for (auto& p : players)
 	{
 		p.set_players(players);
 	}
 
 
-	
+
 
 	//Main game loop until player chose EXIT
 	while (game_state != GameState::EXIT) {
@@ -102,55 +103,22 @@ void Game::run()
 				}
 			}
 			// Check if room was completed (both players moved)
-			bool current_room_is_empty = true;
-			for (auto& p : players) {
-				if (p.getIsActive() && !p.isWaiting() && p.getCurrentRoomID() == current_room) {
-					current_room_is_empty = false;
-					break;
-				}
-			}
-
-			if (current_room_is_empty && current_screen.get_players_moved() > 0) {
+			int next_room = calculateNextRoom(current_room, players, game_state);
+			if (next_room != current_room) {
 				cls();
-
 				int prev_room = current_room;
-				int next_room_index = -1;
+				current_room = next_room;
 
-				bool all_at_end = true;
-				for (auto& p : players) {
-					if (p.getIsActive() && p.getCurrentRoomID() != 4) {
-						all_at_end = false;
-					}
-				}
+				screens.getgame_screens()[prev_room].reset_players_moved();
+				auto& next_screen = screens.getgame_screens()[current_room];
 
-				if (all_at_end) {
-					next_room_index = 4;
-					game_state = END_GAME;
+				Point spawnPoint = (current_room > prev_room) ? next_screen.getStartPos() : next_screen.EndPos();
+
+				if (game_state == END_GAME) {
+					next_screen.draw();
 				}
 				else {
-					for (auto& p : players) {
-						if (p.getIsActive() && p.getCurrentRoomID() != prev_room) {
-							next_room_index = p.getCurrentRoomID();
-						}
-					}
-				}
-
-				if (next_room_index != -1) {
-					screens.getgame_screens()[prev_room].reset_players_moved(); // reset previous room counter of players moved
-
-					current_room = next_room_index;
-					auto& next_screen = screens.getgame_screens()[current_room];
-
-					Point spawnPoint = (current_room > prev_room) ? next_screen.getStartPos() : next_screen.EndPos();
-
-					// Check if the next room is the end game screen
-					if (game_state == END_GAME) {
-						next_screen.draw();
-					}
-					else {
-						// Prepare the next playing room
-						prepareNextRoom(next_screen, players, spawnPoint, current_room);
-					}
+					prepareNextRoom(next_screen, players, spawnPoint, current_room);
 				}
 			}
 			setRuntime(); // Update game runtime/cycles
@@ -175,20 +143,20 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 
 	}
 
-	for (auto& p : players) 
+	for (auto& p : players)
 	{
 		if (p.getIsActive() && p.getCurrentRoomID() == current_room && !p.isWaiting()) {
 			Player& other = (&p == &players[0]) ? players[1] : players[0];
 			// Clear player's previous position
 			if (!p.isWaiting() && !p.getJustDisposed()) {
-				p.draw(' ');
+				p.draw(Object::SPACE);
 			}
 			// Move the player
-			if (p.move(current_screen, the_game,other)) {
+			if (p.move(current_screen, the_game, other)) {
 
 				for (auto& riddle : current_screen.get_riddles())
 				{
-					if (riddle.getisActive()) 
+					if (riddle.getisActive())
 					{
 						riddle_triggered = true;
 					}
@@ -206,28 +174,77 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 		}
 	}
 
-	
+
 }
 
 // Prepares next screen and player positions for it 
 void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const Point& spawnPoint, int current_room)
 {
 	next_screen.draw();
+
+	for (auto& p : players) {
+		next_screen.get_screen_legend().update_values(p.get_char(), players, next_screen);
+	}
+	
+
 	for (auto& p : players)
 	{
 		if (p.getIsActive())
 		{
 			if (p.getCurrentRoomID() == current_room)
 			{
-				// Set player position to room's default coordination and draw it
 				p.setPosition(spawnPoint);
 				p.setDirection(Direction::STAY);
 				p.draw();
 			}
 			else {
-				// if player is active but not in this room,  hide it.
 				p.hideForTransition();
 			}
 		}
 	}
+}
+int Game::calculateNextRoom(int current_room, vector<Player>& players, int& game_state)
+{
+	int room_to_follow = -1;
+
+	for (auto& p : players) {
+		if (p.getJustDisposed() && p.isWaiting()) {
+			room_to_follow = p.getCurrentRoomID();
+			p.setJustDisposed(false);
+		}
+	}
+
+	bool current_room_is_empty = true;
+	for (auto& p : players) {
+		if (p.getIsActive() && !p.isWaiting() && p.getCurrentRoomID() == current_room) {
+			current_room_is_empty = false;
+			break;
+		}
+	}
+
+	if (current_room_is_empty && room_to_follow != -1) {
+		bool both_finished = true;
+		for (auto& p : players) {
+			if (p.getIsActive() && p.getCurrentRoomID() != 4) {
+				both_finished = false;
+			}
+		}
+
+		if (room_to_follow == 4 && !both_finished) {
+			for (auto& p : players) {
+				if (p.getIsActive() && p.getCurrentRoomID() != 4) {
+					return p.getCurrentRoomID();
+				}
+			}
+		}
+		else if (room_to_follow == 4 && both_finished) {
+			game_state = END_GAME;
+			return 4;
+		}
+		else {
+			return room_to_follow;
+		}
+	}
+
+	return current_room;
 }

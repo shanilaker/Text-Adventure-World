@@ -15,8 +15,8 @@ Screen::Screen()
     {
         for (int j = 0; j < Game::MAX_X; j++)
         {
-            screen[i][j] = ' ';
-            screen_reset[i][j] = ' ';
+            screen[i][j] = Object::SPACE;
+            screen_reset[i][j] = Object::SPACE;
         }
     }
 }
@@ -31,7 +31,7 @@ void Screen::reset(vector<Player>& players)
             screen[i][j] = screen_reset[i][j];
         }
     }
-    
+
     screen_legend.draw(screen, players);
     screen_legend.draw(screen_reset, players);
     for (int i = 0; i < riddles.size();i++)
@@ -60,7 +60,7 @@ void Screen::reset(vector<Player>& players)
 }
 
 // Draws a specific (x,y) on the screen
-void Screen::draw(const int & x, const int& y) const {
+void Screen::draw(const int& x, const int& y) const {
     gotoxy(x, y);
     cout << screen[y][x];
 }
@@ -97,7 +97,7 @@ Screen::Screen(const char* the_screen[Game::MAX_Y], vector<Door> _screen_doors, 
         strncpy_s(screen[i], the_screen[i], Game::MAX_X);
         strncpy_s(screen_reset[i], the_screen[i], Game::MAX_X);
     }
-    
+
 }
 
 Screen::Screen(const char* the_screen[Game::MAX_Y])
@@ -114,10 +114,10 @@ char Screen::getCharAt(const int& x, const int& y) const {
     if (x >= 0 && x < Game::MAX_X && y >= 0 && y < Game::MAX_Y) {
         return screen[y][x];
     }
-    return ' '; //out of range 
+    return Object::SPACE; //out of range 
 }
 
-void Screen::setCharAt(const int& x, const int& y, const char & ch) {
+void Screen::setCharAt(const int& x, const int& y, const char& ch) {
     // checks if (x,y) is in screen boundries
     if (x >= 0 && x <= Game::MAX_X - 1 && y >= 0 && y <= Game::MAX_Y - 1 && screen[y] != nullptr) {
         screen[y][x] = ch;
@@ -138,8 +138,8 @@ void Screen::restoreSprings() {
     for (int i = 0; i < Game::MAX_Y; i++) {
         for (int j = 0; j < Game::MAX_X; j++) {
             // If original screen had a spring and it's gone - put it back
-            if (screen_reset[i][j] == '#' && screen[i][j] == ' ') {
-                screen[i][j] = '#';
+            if (screen_reset[i][j] == Object::SPRING && screen[i][j] == Object::SPACE) {
+                screen[i][j] = Object::SPRING;
                 draw(j, i);
             }
         }
@@ -158,16 +158,16 @@ void Screen::drawDark(vector<Player>& players) const {
 
         for (int j = 0; j < Game::MAX_X; j++) {
             char current_map_char = screen[i][j];
-            char char_to_draw = ' ';
+            char char_to_draw = Object::SPACE;
 
             bool in_light = false;
             bool is_border = (i == 0 || i == Game::MAX_Y - 1 || j == 0 || j == Game::MAX_X - 1);
-            bool is_torch = (current_map_char == '!');
+            bool is_torch = (current_map_char == Object::TORCH);
             bool is_legend = (i >= legY && i < legY + 6 && j >= legX && j < legX + 76);
 
             for (int p = 0; p < 2; p++) {
                 if (players[p].getIsActive() && !players[p].isWaiting()) {
-                    int r = (players[p].getHeldItem() == '!') ? radius : 0;
+                    int r = (players[p].getHeldItem() == Object::TORCH) ? radius : 0;
                     if (std::abs(players[p].getX() - j) <= r && std::abs(players[p].getY() - i) <= r) {
                         in_light = true;
                         break;
@@ -213,30 +213,30 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     std::string str;
 
     for (int i = 0; i < Game::MAX_Y; i++) {
-        for (int j = 0; j < Game::MAX_X; j++) screen[i][j] = ' ';
-        screen[i][Game::MAX_X] = '\0'; 
+        for (int j = 0; j < Game::MAX_X; j++) screen[i][j] = Object::SPACE;
+        screen[i][Game::MAX_X] = '\0';
     }
-    
+
     while (screen_file.get(c) && curr_row < Game::MAX_Y) {
-         
+
         if (c == '\n') {
             if (curr_col < Game::MAX_X) {
                 // add spaces for missing cols
                 #pragma warning(suppress : 4996) // to allow strcpy
-                strcpy(screen[curr_row] + curr_col, std::string(Game::MAX_X - curr_col - 1, ' ').c_str());
+                strcpy(screen[curr_row] + curr_col, std::string(Game::MAX_X - curr_col - 1, Object::SPACE).c_str());
             }
             curr_row++;
             curr_col = 0;
             continue;
         }
 
-        
+
         if (curr_col < Game::MAX_X) {
             update_values(c, index, curr_col, curr_row, l_p);
             curr_col++;
         }
 
-        
+
     }
 
     if (curr_row == 0) {
@@ -244,10 +244,10 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     }
 
     int last_row = (curr_row < Game::MAX_Y ? curr_row : Game::MAX_Y - 1);
-    
+
     createObstacbles(obstacles);
 
-    for (auto& o : obstacles) 
+    for (auto& o : obstacles)
     {
         o.set_to_force_needed(static_cast<int>(o.get_body().size()));
         o.set_reset_force(static_cast<int>(o.get_body().size()));
@@ -259,11 +259,11 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     createFrame(last_row);
 
     //Only to game boards add riddles
-    if (index == 1 || index == 2)
+    if (index >= 1 && index <= 3)
     {
         for (int i = 0; i < Game::MAX_Y; i++) {
             for (int j = 0; j < Game::MAX_X; j++) {
-                if (screen[i][j] == '?')
+                if (screen[i][j] == Object::RIDDLE)
                 {
                     if (!riddles_array.getgame_riddles().empty())
                     {
@@ -278,7 +278,7 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
             }
         }
     }
-    
+
 
     for (int i = 0; i < Game::MAX_Y; i++) {
         strcpy_s(screen_reset[i], Game::MAX_X + 1, screen[i]);
@@ -287,7 +287,7 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     screen_legend = Legend(l_p, screen);
 
     //GEMINI
-    updateOutValues(screen_file,c);
+    updateOutValues(screen_file, c);
 
     if (startPos.getX() == -1 || endPos.getX() == -1) {
         throw std::runtime_error("Error: Screen file " + filename + " is missing START_POS or END_POS!");
@@ -300,43 +300,43 @@ void Screen::createFrame(int last_row)
 {
     // add a closing frame
     // first line
-    #pragma warning(suppress : 4996) 
-    strcpy(screen[0], std::string(Game::MAX_X, 'W').c_str());
+#pragma warning(suppress : 4996) 
+    strcpy(screen[0], std::string(Game::MAX_X, Object::WALL).c_str());
     screen[0][Game::MAX_X] = '\0';
 
     // last line
-    #pragma warning(suppress : 4996) 
-    strcpy(screen[last_row], std::string(Game::MAX_X, 'W').c_str());
+#pragma warning(suppress : 4996) 
+    strcpy(screen[last_row], std::string(Game::MAX_X, Object::WALL).c_str());
     screen[last_row][Game::MAX_X] = '\0';
 
     // first col + last col
     for (int row = 1; row < last_row; ++row) {
-        screen[row][0] = 'W';
-        screen[row][Game::MAX_X - 1] = 'W';
+        screen[row][0] = Object::WALL;
+        screen[row][Game::MAX_X - 1] = Object::WALL;
         screen[row][Game::MAX_X] = '\0';
     }
 }
 
 void Screen::update_values(char c, int index, int curr_col, int curr_row, Point& l_p)
 {
-    if (c == '@' && (index == 1 || index == 2)) {
+    if (c == Object::BOMB && (index >= 1 && index <= 3)) {
         bombs.push_back(Bomb(false, curr_col, curr_row, -1));
-        screen[curr_row][curr_col] = '@';
+        screen[curr_row][curr_col] = Object::BOMB;
     }
 
-    else if (c == '\\' && (index == 1 || index == 2)) {
+    else if (c == Object::C_SWITCH && (index >= 1 && index <= 3)) {
         switches.push_back(Switch(curr_col, curr_row, false, false));
-        screen[curr_row][curr_col] = '\\';
+        screen[curr_row][curr_col] = Object::C_SWITCH;
     }
 
-    else if (c == 'L' && (index == 1 || index == 2)) {
+    else if (c == 'L' && (index >= 1 && index <= 3)) {
         legend_count++;
         l_p.setX(curr_col);
         l_p.setY(curr_row);
-        screen[curr_row][curr_col] = ' ';
+        screen[curr_row][curr_col] = Object::SPACE;
     }
 
-    else if (c >= '1' && c <= '9' && (index == 1 || index == 2)) {
+    else if (c >= '1' && c <= '9' && (index >= 1 && index <= 3)) {
         screen_doors.push_back(Door(curr_col, curr_row, c, 0, false));
         screen[curr_row][curr_col] = c;
     }
@@ -360,12 +360,12 @@ void Screen::updateOutValues(std::ifstream& screen_file, char c)
             key = c + line.substr(0, pos);
             start_itr = false;
         }
-        else 
+        else
         {
             key = line.substr(0, pos);
         }
 
-        
+
         std::string value = line.substr(pos + 1);
 
         if (key.find("DOOR_") == 0) {
@@ -462,7 +462,7 @@ void Screen::createObstacbles(vector<Obstacle>& _obstacles)
     {
         for (int j = 0; j < Game::MAX_X; j++)
         {
-            if (screen[i][j] == '*')
+            if (screen[i][j] == Object::OBSTACLE)
             {
                 vector<Point> r_body;
                 addBody(i, j, r_body);
@@ -476,7 +476,7 @@ void Screen::createObstacbles(vector<Obstacle>& _obstacles)
 
     for (auto& obs : _obstacles) {
         for (const auto& p : obs.get_body()) {
-            screen[p.getY()][p.getX()] = '*';
+            screen[p.getY()][p.getX()] = Object::OBSTACLE;
         }
     }
 }
@@ -484,7 +484,7 @@ void Screen::createObstacbles(vector<Obstacle>& _obstacles)
 void Screen::addBody(int i, int j, vector<Point>& r_body)
 {
     if (i < 0 || i >= Game::MAX_Y || j < 0 || j >= Game::MAX_X) return;
-    if (screen[i][j] != '*') return;
+    if (screen[i][j] != Object::OBSTACLE) return;
 
     screen[i][j] = 'V';
     r_body.push_back(Point(j, i));
@@ -512,40 +512,40 @@ void Screen::findSpringsInScreen() {
         for (int j = 0; j < Game::MAX_X; j++) {
 
             // If found spring that wasn't scanned already
-            if (screen[i][j] == '#' && !visited[i][j]) {
+            if (screen[i][j] == Object::SPRING && !visited[i][j]) {
                 int len = 0;
                 Direction releaseDir = Direction::STAY;
                 int startX = j;
                 int startY = i;
 
                 // If spring direction is right/left
-                if (j + 1 < Game::MAX_X && screen[i][j + 1] == '#') {
+                if (j + 1 < Game::MAX_X && screen[i][j + 1] == Object::SPRING) {
                     // calculate length of spring
-                    while (j + len < Game::MAX_X && screen[i][j + len] == '#') {
+                    while (j + len < Game::MAX_X && screen[i][j + len] == Object::SPRING) {
                         visited[i][j + len] = true;
                         len++;
                     }
                     // calculate release direction
-                    if (j > 0 && screen[i][j - 1] == 'W') { // if wall is from left - release direction is right
+                    if (j > 0 && screen[i][j - 1] == Object::WALL) { // if wall is from left - release direction is right
                         releaseDir = Direction::RIGHT;
                         startX = j;
                     }
-                    else if (j + len < Game::MAX_X && screen[i][j + len] == 'W') { // if wall is from right to spring- release direction is left
+                    else if (j + len < Game::MAX_X && screen[i][j + len] == Object::WALL) { // if wall is from right to spring- release direction is left
                         releaseDir = Direction::LEFT;
                         startX = j + len - 1;
                     }
                 }
                 // if spring direction is up/down
-                else if (i + 1 < Game::MAX_Y && screen[i + 1][j] == '#') {
-                    while (i + len < Game::MAX_Y && screen[i + len][j] == '#') {
+                else if (i + 1 < Game::MAX_Y && screen[i + 1][j] == Object::SPRING) {
+                    while (i + len < Game::MAX_Y && screen[i + len][j] == Object::SPRING) {
                         visited[i + len][j] = true;
                         len++;
                     }
-                    if (i > 0 && screen[i - 1][j] == 'W') { //if wall is from above, release direction is down
+                    if (i > 0 && screen[i - 1][j] == Object::WALL) { //if wall is from above, release direction is down
                         releaseDir = Direction::DOWN;
                         startY = i;
                     }
-                    else if (i + len < Game::MAX_Y && screen[i + len][j] == 'W') { //if wall is from below, release direction is up
+                    else if (i + len < Game::MAX_Y && screen[i + len][j] == Object::WALL) { //if wall is from below, release direction is up
                         releaseDir = Direction::UP;
                         startY = i + len - 1;
                     }
@@ -555,13 +555,13 @@ void Screen::findSpringsInScreen() {
                     len = 1;
                     visited[i][j] = true;
                     // check where wall is to calculate release direction
-                    if (j > 0 && screen[i][j - 1] == 'W')
+                    if (j > 0 && screen[i][j - 1] == Object::WALL)
                         releaseDir = Direction::RIGHT;
-                    else if (j + 1 < Game::MAX_X && screen[i][j + 1] == 'W')
+                    else if (j + 1 < Game::MAX_X && screen[i][j + 1] == Object::WALL)
                         releaseDir = Direction::LEFT;
-                    else if (i > 0 && screen[i - 1][j] == 'W')
+                    else if (i > 0 && screen[i - 1][j] == Object::WALL)
                         releaseDir = Direction::DOWN;
-                    else if (i + 1 < Game::MAX_Y && screen[i + 1][j] == 'W')
+                    else if (i + 1 < Game::MAX_Y && screen[i + 1][j] == Object::WALL)
                         releaseDir = Direction::UP;
                 }
 

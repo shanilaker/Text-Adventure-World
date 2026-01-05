@@ -40,24 +40,17 @@ Screens::Screens() {
 
 }
 
-//size_t Screens::getTotalRiddlesCount() {
-//	size_t total = 0;
-//	for (int i = 0; i < 6; i++) {
-//		total += game_screens[i].get_riddles().size();
-//	}
-//	return total;
-//}
 
 size_t Screens::getTotalRiddlesCount() 
 {
 	size_t total = 0;
-	for (int k = 1; k <= 2; k++) 
+	for (int k = 1; k <= 3; k++) 
 	{
 		for (int i = 0; i < Game::MAX_Y; i++) 
 		{
 			for (int j = 0; j < Game::MAX_X; j++) 
 			{
-				if (game_screens[k].getCharAt(j, i) == '?')
+				if (game_screens[k].getCharAt(j, i) == Object::RIDDLE)
 				{
 					total++;
 				}
