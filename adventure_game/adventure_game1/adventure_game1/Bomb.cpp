@@ -19,10 +19,10 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 			{
 				char target_char = current_screen.getCharAt(x_, y_);
 	
-				if (target_char == 'W')
+				if (target_char == Object::WALL)
 				{
 					//Erase
-					current_screen.setCharAt(x_, y_, ' ');
+					current_screen.setCharAt(x_, y_, Object::SPACE);
 					current_screen.draw(x_, y_);
 				}
 	
@@ -42,7 +42,7 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 			{
 				char target_char = current_screen.getCharAt(x_, y_);
 	
-				if (target_char == '?')
+				if (target_char == Object::RIDDLE)
 				{
 					//Erase
 					for (auto& riddle : current_screen.get_riddles())
@@ -50,28 +50,28 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 						if(x_ == riddle.getX() && y_ == riddle.getY())
 							riddle.kill();
 					}
-					current_screen.setCharAt(x_, y_, ' ');
+					current_screen.setCharAt(x_, y_, Object::SPACE);
 				}
 				if (target_char <= '9' && target_char >= '1')
 				{
 					//Erase
 					current_screen.getDoor(target_char).kill();
-					current_screen.setCharAt(x_, y_, ' ');
+					current_screen.setCharAt(x_, y_, Object::SPACE);
 					game_state = LOSE;
 				}
-				if (target_char == 'K')
+				if (target_char == Object::KEY)
 				{
 					//Erase
-					current_screen.setCharAt(x_, y_, ' ');
+					current_screen.setCharAt(x_, y_, Object::SPACE);
 					game_state = LOSE;
 				}
-				if (target_char == '\\' || target_char == '/')
+				if (target_char == Object::C_SWITCH || target_char == Object::O_SWITCH)
 				{
 					//Erase
 					for (int i = 0; i <= current_screen.getNumSwitches();i++)
 					{
 						current_screen.getSwitches()[i].kill();
-						current_screen.setCharAt(x_, y_, ' ');
+						current_screen.setCharAt(x_, y_, Object::SPACE);
 					}
 					game_state = LOSE;
 				}
@@ -88,7 +88,7 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 
 	void Bomb::kill(Screen & current_screen, const int& bomb_x, const int& bomb_y) {
 		is_active = false;
-		current_screen.setCharAt(bomb_x, bomb_y, ' ');
+		current_screen.setCharAt(bomb_x, bomb_y, Object::SPACE);
 		current_screen.draw();
 	}
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "Game.h"
 
 class Key 
 {
@@ -6,7 +7,7 @@ class Key
 private:
 	int x = -1;
 	int y = -1;
-	char sign = 'K';
+	char sign = Object::KEY;
 	int id = 1;
 	bool is_active = true;
 

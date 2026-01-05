@@ -1,25 +1,25 @@
 --------------------------------------------------------------------------------
+|  *PRESS ESC TO EXIT           GAME INSTRUCTIONS                              |
+|------------------------------------------------------------------------------|
+| Movement Keys:                                                               |
 |                                                                              |
+|    Player 1:         Player 2:                                               |
+|     W  Up              I  Up                                                 |
+|     A  Left            J  Left                                               |
+|     S  Stay            K  Stay                                               |
+|     D  Right           L  Right                                              |
+|     X  Down            M  Down                                               |
+|     E  Drop item       O  Drop Item                                          |
 |                                                                              |
+|------------------------------------------------------------------------------|
 |                                                                              |
+|  Game Elements:                                                              |
 |                                                                              |
+|   # Spring - compress it to gain speed when released.                        |
+|   K Key - collect to open matching doors.                                    |
+|   1-9 Door - step on it to move to another room (if allowed).                |
+|   ? Riddle - solve it to pass through                                        |
+|   W Wall - blocks movement                                                   |
 |                                                                              |
-|                            ************************                          |
-|                            *   CONGRATULATIONS!   *                          |
-|                            ************************                          |
-|                                                                              |
-|                            You have completed the game!                      |
-|                                                                              |
-|                      Thank you for playing the Adventure World               |
-|                                                                              |
-|                            Press ESC to return to menu                       |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-|                                                                              |
+| The two players must cooperate to solver each room and reach the final room. |
 --------------------------------------------------------------------------------

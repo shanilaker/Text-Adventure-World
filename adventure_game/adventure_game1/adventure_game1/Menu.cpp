@@ -21,7 +21,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
                 return GameState::MENU;
             }
             
-            current_room_id = 1;
+            current_room_id = GameState::PLAYING;
             auto& start_screen = screens.getgame_screens()[current_room_id];
 
             //RESET PLAYERS AND SCREENS
@@ -29,7 +29,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
                 p.reset(); 
                 p.setPosition(start_screen.getStartPos());
             }
-            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(players); }
+            for (int i = 1; i < 4; i++) { screens.getgame_screens()[i].reset(players); }
             
             start_screen.draw();
             start_screen.get_screen_legend().draw(start_screen.getBoard(), players);
@@ -49,7 +49,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
         if (key == '8')
         {
             cls();
-            current_room_id = 4; //4 = INSTRUCTIONS
+            current_room_id = GameState::INSTRUCTIONS; //4 = INSTRUCTIONS
             screens.getgame_screens()[current_room_id].draw();
             return GameState::INSTRUCTIONS;
         }
@@ -61,7 +61,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
         //go back to menu if player pressed ESC
         if (key == Keys::ESC)
         {
-            current_room_id = 0; // MENU = 0
+            current_room_id = GameState::MENU; // MENU = 0
             screens.getgame_screens()[current_room_id].draw();
             return GameState::MENU;
         }
@@ -73,7 +73,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
         // Return to menu if player pressed "H"
         if (key == 'H' || key == 'h')
         {
-            current_room_id = 0; //MENU
+            current_room_id = GameState::MENU; //MENU
             screens.getgame_screens()[MENU].draw();
 
             // Reset players' and room states for new game
@@ -101,7 +101,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
         //go back to menu if player pressed ESC
         if (key == Keys::ESC)
         {
-            current_room_id = 0;
+            current_room_id = GameState::MENU;
             screens.getgame_screens()[current_room_id].draw();
             // Reset players' and room states for new game
             for (auto& p : players) { p.reset(); }
@@ -113,7 +113,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
 
     if (current_state == GameState::LOSE) {
         cls();
-        screens.getgame_screens()[5].draw(); //show LOSE screen
+        screens.getgame_screens()[GameState::LOSE].draw(); //show LOSE screen
     }
     // no state transition happened - keep same state;
     return current_state;
@@ -164,7 +164,7 @@ GameState Menu::testing(bool not_vaild_over_screen, bool not_vaild_on_objects)
     }
 
     //Checks if the Legend point is valid
-    for (int i = 1; i < 3; i++)
+    for (int i = 1; i < 4; i++)
     {
         if (screens.getgame_screens()[i].get_screen_legend().get_over_the_screen())
         {
@@ -191,8 +191,6 @@ GameState Menu::testing(bool not_vaild_over_screen, bool not_vaild_on_objects)
         cout << "Error: Legend is placed out of screen bounds!";
         return GameState::MENU;
     }
-
-    
 
     return GameState::PLAYING;
 }

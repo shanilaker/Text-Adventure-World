@@ -45,17 +45,17 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
                 cls();
                 cur_screen.draw();
                 for (auto& p : players) {
-                    if (p.getIsActive()){
+                    if (p.getIsActive()) {
                         if (p.get_char() == riddle.get_player_activated())
                         {
                             p.upScore();
                         }
 
-                        if (p.getsolvedRiddle() == -1){
+                        if (p.getsolvedRiddle() == -1) {
                             p.setsolvedRiddle(1);
                         }
 
-                        if (!p.isWaiting()){
+                        if (!p.isWaiting()) {
                             p.draw(' ');
                             p.draw();
                         }
@@ -64,7 +64,7 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
                 cout.flush();
                 riddle.setisActive(false);
             }
-            else 
+            else
             {
                 //If answer is incorrect, set solvedRiddle to 0 (NOT SOLVED) and draw player on the game screen, near the riddle
                 cls();
@@ -87,14 +87,14 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
                 }
                 cout.flush();
             }
-            
+
             riddle.setActivated(false);
         }
     }
 
-    for (auto& p : players) 
+    for (auto& p : players)
     {
-        cur_screen.get_screen_legend().update_values(p.get_char(), players,cur_screen);
+        cur_screen.get_screen_legend().update_values(p.get_char(), players, cur_screen);
     }
 
 }
@@ -125,7 +125,7 @@ void Riddle::load(const std::string& filename)
     std::string str;
 
     for (int i = 0; i < Game::MAX_Y; i++) {
-        for (int j = 0; j < Game::MAX_X; j++) text[i][j] = ' ';
+        for (int j = 0; j < Game::MAX_X; j++) text[i][j] = Object::SPACE;
         text[i][Game::MAX_X] = '\0';
     }
 
@@ -135,7 +135,7 @@ void Riddle::load(const std::string& filename)
             if (curr_col < Game::MAX_X) {
                 // add spaces for missing cols
                 #pragma warning(suppress : 4996) // to allow strcpy
-                strcpy(text[curr_row] + curr_col, std::string(Game::MAX_X - curr_col - 1, ' ').c_str());
+                strcpy(text[curr_row] + curr_col, std::string(Game::MAX_X - curr_col - 1, Object::SPACE).c_str());
             }
             curr_row++;
             curr_col = 0;

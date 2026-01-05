@@ -8,7 +8,7 @@ Legend::Legend() : p(Point(0, 0))
     //Update empty screen
     for (int i = 0; i < Game::MAX_Y; i++) {
         for (int j = 0; j < Game::MAX_X; j++) {
-            l_screen[i][j] = ' ';
+            l_screen[i][j] = Object::SPACE;
         }
         l_screen[i][Game::MAX_X] = '\0';
     }
@@ -46,7 +46,7 @@ Legend::Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 
             if (i < 0 || i >= Game::MAX_X) continue;
 
             char target = l_screen[j][i];
-            if (target != 'W' && target != ' ')
+            if (target != Object::WALL && target != Object::SPACE)
             {
                 on_objects = true;
             }
@@ -67,7 +67,7 @@ void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
             int holdX = p.getX() + 61;
 
             char itemToShow = players[i].getHeldItem();
-            char finalItem = (itemToShow == '\0') ? ' ' : itemToShow;
+            char finalItem = (itemToShow == '\0') ? Object::SPACE : itemToShow;
 
             cur_screen.setCharAt(holdX, row, finalItem); 
             gotoxy(holdX, row);                          
@@ -81,9 +81,9 @@ void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
             std::string score_s = std::to_string(players[i].getScore().getData());
 
             for (int j = 0; j < 5; j++) {
-                cur_screen.setCharAt(scoreX + j, row, ' '); 
+                cur_screen.setCharAt(scoreX + j, row, Object::SPACE);
                 gotoxy(scoreX + j, row);
-                std::cout << ' ';                           
+                std::cout << ' ';
             }
 
             
@@ -98,6 +98,7 @@ void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
         }
     }
 }
+
 
 
 //Draw the legend
@@ -118,7 +119,7 @@ void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& play
             else if (i == l_x || i == l_x + 75)
                 board[j][i] = '|';
             else
-                board[j][i] = ' ';
+                board[j][i] = Object::SPACE;
         }
     }
 

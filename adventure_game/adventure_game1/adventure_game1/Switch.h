@@ -1,12 +1,13 @@
 #pragma once
+#include "Game.h"
 
 class Switch 
 {
 	int x = -1;
 	int y  = -1;
 	bool is_on = false;
-	char on_char = '/';
-	char off_char = '\\';
+	char on_char = Object::O_SWITCH;
+	char off_char = Object::C_SWITCH;
 	bool is_active = true;
 	bool is_needed = true;
 	char target_door_id = '0';

@@ -5,14 +5,14 @@
 vector<Player> Player::players;
 
 //Player constructor
-Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) :x(x1), y(y1), diff_x(diffx), diff_y(diffy),ch(c), current_room_id(room_id),reset_valueX(x1),reset_valueY(y1),diff_valueX(diffx),diff_valueY(diffy),life(Point(3)),score(Point(0))
+Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) :x(x1), y(y1), diff_x(diffx), diff_y(diffy), ch(c), current_room_id(room_id), reset_valueX(x1), reset_valueY(y1), diff_valueX(diffx), diff_valueY(diffy), life(Point(3)), score(Point(0))
 {
 	memcpy(keys, the_keys, NUM_KEYS * sizeof(keys[0]));
-	riddleSolved = solvedRiddle;
+	solvedRiddle = riddleSolved;
 }
 
 void Player::setHeldItem(char item, Screen& cur_screen)
-{ 
+{
 	held_item = item;
 
 	for (auto& p : players) {
@@ -22,7 +22,7 @@ void Player::setHeldItem(char item, Screen& cur_screen)
 		}
 	}
 
-	cur_screen.get_screen_legend().update_values(ch, players,cur_screen);
+	cur_screen.get_screen_legend().update_values(ch, players, cur_screen);
 }
 
 void Player::checkAndkill(int bomb_x, int bomb_y, int& game_state)
@@ -79,7 +79,7 @@ void Player::setPosition(const Point& start)
 
 // When player explodes from bomb, hides it from screen and marks it as Inactive
 void Player::kill() {
-	draw(' ');
+	draw(Object::SPACE);
 	is_active = false;
 }
 
@@ -92,7 +92,7 @@ void Player::draw() const {
 }
 
 // Draw player on the screen with the given char as symbol
-void Player::draw(const char & c) const {
+void Player::draw(const char& c) const {
 	if (is_active) {
 		gotoxy(x, y);
 		std::cout << c;
@@ -100,50 +100,99 @@ void Player::draw(const char & c) const {
 }
 
 // Reponsible for the player move, calculates his next (x,y) based on speed, direction, and items that appear on its way
-bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
+bool Player::move(Screen& cur_screen, Game the_game, Player& other_player)
 {
 	int cur_speed = (boost_time > 0) ? boost_speed : 1;
-
-	// Calculate the next (x,y) the player will be placed at
 	int next_x = x;
 	int next_y = y;
+	bool hit_wall = false;
 
-	bool hit_obstacle = false;
-
+	int bdx = 0, bdy = 0;
+	if (boost_time > 0) {
+		if (boost_dir == Direction::UP) bdy = -1;
+		else if (boost_dir == Direction::DOWN) bdy = 1;
+		else if (boost_dir == Direction::LEFT) bdx = -1;
+		else if (boost_dir == Direction::RIGHT) bdx = 1;
+	}
+	// Calculate the next (x,y) the player will be placed at
 	for (int step = 0; step < cur_speed; ++step) {
-		int temp_x = (next_x + diff_x + Game::MAX_X) % Game::MAX_X;
-		int temp_y = (next_y + diff_y + Game::MAX_Y) % Game::MAX_Y;
+		int dx = (step == 0) ? diff_x + bdx : bdx;
+		int dy = (step == 0) ? diff_y + bdy : bdy;
 
-		// Transfer boost to other player if collided
-		if (other_player.isActive() && temp_x == other_player.getX() && temp_y == other_player.getY()) {
-			if (boost_time > 0) {
-				other_player.setBoost(boost_speed, boost_time, boost_dir);
+		// check if x movement has no wall in the way
+		if (dx != 0) {
+			int tx = (next_x + (dx > 0 ? 1 : -1) + Game::MAX_X) % Game::MAX_X;
+			char ch_x = cur_screen.getCharAt(tx, next_y);
+
+			if (ch_x != Object::WALL && ch_x != '|' && ch_x != '-') {
+				next_x = tx;
+			}
+			else {
+				hit_wall = true;
 			}
 		}
 
-		char step_char = cur_screen.getCharAt(temp_x, temp_y);
+		// check if y movement has no wall in the way
+		if (dy != 0) {
+			int ty = (next_y + (dy > 0 ? 1 : -1) + Game::MAX_Y) % Game::MAX_Y;
+			char ch_y = cur_screen.getCharAt(next_x, ty);
 
-		if (step_char == '*') {
-			move_to_obstacle(cur_screen, players, temp_x, temp_y);
+			if (ch_y != Object::WALL && ch_y != '|' && ch_y != '-') {
+				next_y = ty;
+			}
+			else {
+				hit_wall = true;
+			}
 		}
 
-		if (step_char == 'W') {
-			hit_obstacle = true;
+		char step_char = cur_screen.getCharAt(next_x, next_y);
+
+		// Transfer boost to other player if collided
+		if (other_player.isActive() && next_x == other_player.getX() && next_y == other_player.getY()) {
+			if (boost_time > 0) other_player.setBoost(boost_speed, boost_time, boost_dir);
+		}
+
+		// collect item 
+		if (!hasItem()) {
+			if (step_char == Object::KEY && !(diff_x == 0 && diff_y == 0)) {
+				take_key(cur_screen, next_x, next_y);
+			}
+			else if (step_char == Object::BOMB && !(diff_x == 0 && diff_y == 0)) {
+				move_to_bomb(next_x, next_y, cur_screen);;
+			}
+		}
+		else {
+			if (step_char == Object::KEY || step_char == Object::BOMB) {
+				setDirection(Direction::STAY);
+				return false;
+			}
+		}
+
+		// if moved into riddle
+		if (step_char == Object::RIDDLE) {
+			return move_to_riddle(next_x, next_y, cur_screen);
+		}
+		// if moved into obstacle
+		if (step_char == Object::OBSTACLE) {
+			move_to_obstacle(cur_screen, players, next_x, next_y);
 			break;
 		}
-		next_x = temp_x;
-		next_y = temp_y;
+
+		// stop moving forward if hit a wall and have boost
+		if (hit_wall && boost_time > 0) break;
 	}
 
+	// control boost time
 	if (boost_time > 0) {
 		boost_time--;
-		if (boost_time == 0 || hit_obstacle) {
-			boost_speed = 1;
+		if (hit_wall || boost_time == 0) {
 			boost_time = 0;
+			boost_speed = 1;
 			boost_dir = Direction::STAY;
 		}
 	}
 
+	// check if player changed direction inside spring
 	bool direction_changed = false;
 	if (boost_count > 0 && (diff_x != 0 || diff_y != 0)) {
 		Spring* s = cur_screen.getSpringAt(x, y);
@@ -151,7 +200,6 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 			direction_changed = true;
 		}
 	}
-
 
 	for (auto& obstacle : cur_screen.get_obstacles())
 	{
@@ -166,7 +214,7 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 	if (diff_x == 99 && diff_y == 99) {
 		if (hasItem()) {
 			// if player is throwing a bomb 
-			if (getHeldItem() == '@' && (target_char != '|' && target_char != '-'))
+			if (getHeldItem() == Object::BOMB && (target_char != '|' && target_char != '-'))
 			{
 				for (auto& bomb : cur_screen.get_bombs())
 				{
@@ -178,7 +226,7 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 						bomb.set_time_to_explode(the_game.getRuntime());
 						break;
 					}
-					
+
 				}
 			}
 			cur_screen.setCharAt(x, y, getHeldItem()); // throw held item at current place
@@ -197,11 +245,12 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 	}
 
 	// If target is spring
-	if (target_char == '#') {
+	if (target_char == Object::SPRING) {
 		return move_to_spring(next_x, next_y, cur_screen);
 	}
 
-	if (boost_count > 0 && (hit_obstacle || direction_changed || (diff_x == 0 && diff_y == 0))) {
+	// spring gives boost if player finished spring on tried to move in it
+	if (boost_count > 0 && (hit_wall || direction_changed || (diff_x == 0 && diff_y == 0))) {
 		Spring* spring = cur_screen.getSpringAt(x, y);
 		if (spring) {
 			boost_speed = boost_count;
@@ -214,17 +263,40 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 		return false;
 	}
 
+	// keep moving
+	if (handleCollision(target_char, next_x, next_y, cur_screen)) {
+		if (next_x != x || next_y != y) {
+			setJustDisposed(false);
+		}
+		cur_screen.draw(x, y);
+		x = next_x;
+		y = next_y;
+		return false;
+	}
+	else {
+		return false;
+	}
+}
+
+bool Player::handleCollision(char target_char, int next_x, int next_y, Screen& cur_screen) {
+
 	// if target is Wall, stay in place
-	else if (target_char == 'W') {
+	if (target_char == Object::WALL || target_char == '|' || target_char == '-') {
 		setDirection(Direction::STAY);
 		return false;
 	}
 
+	// If target is door
+	else if (target_char >= '1' && target_char <= '9') {
+		Door& door = cur_screen.getDoor(target_char);
+		return move_to_door(door, cur_screen);
+
+	}
 	// if target is Torch
-	else if (target_char == '!' && !(diff_x == 0 && diff_y == 0)) {
+	else if (target_char == Object::TORCH && !(diff_x == 0 && diff_y == 0)) {
 		if (!hasItem()) {
-			setHeldItem('!', cur_screen);
-			cur_screen.setCharAt(next_x, next_y, ' ');
+			setHeldItem(Object::TORCH, cur_screen);
+			cur_screen.setCharAt(next_x, next_y, Object::SPACE);
 			x = next_x;
 			y = next_y;
 			return false;
@@ -233,27 +305,8 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 		return false;
 	}
 
-	// if target is Wall, stay in place
-	if (target_char == '|' || target_char == '-') {
-		setDirection(Direction::STAY);
-		return false;
-	}
-
-	// if Target is Key 
-	else if (target_char == 'K' && !(diff_x == 0 && diff_y == 0)) {
-
-		return take_key(cur_screen, next_x, next_y);
-	}
-
-	// If target is door
-	else if (target_char >= '1' && target_char <= '9') {
-
-		Door& door = cur_screen.getDoor(target_char);
-		return move_to_door(door, cur_screen);
-	}
-
 	// If target is obstacle
-	else if (target_char == '*')
+	else if (target_char == Object::OBSTACLE)
 	{
 		for (auto& obstacle : cur_screen.get_obstacles())
 		{
@@ -262,42 +315,30 @@ bool Player::move(Screen& cur_screen, Game the_game,Player& other_player)
 			{
 				return move_to_obstacle(cur_screen, players, next_x, next_y);
 			}
-			
+
 		}
 		return false;
 	}
 
 	// If target is bomb
-	else if (target_char == '@' && !(diff_x == 0 && diff_y == 0))
+	else if (target_char == Object::BOMB && !(diff_x == 0 && diff_y == 0))
 	{
 		return move_to_bomb(next_x, next_y, cur_screen);
 	}
 
 	// If target is riddle
-	else if (target_char == '?')
-	{
+	else if (target_char == Object::RIDDLE) {
 		return move_to_riddle(next_x, next_y, cur_screen);
 	}
 
 	// If target is switch
-	else if (target_char == '/' || target_char == '\\')
+	else if (target_char == Object::O_SWITCH || target_char == Object::C_SWITCH)
 	{
 		return move_to_switch(next_x, next_y, cur_screen);
 	}
+	return true;
 
-		// keep moving
-	else {
-			if (next_x != x || next_y != y) 
-			{
-				setJustDisposed(false);
-			}
-			cur_screen.draw(x, y);
-			x = next_x;
-			y = next_y;
-			return false;
-		}
 }
-
 bool Player::move_to_switch(const int& next_x, const int& next_y, Screen& cur_screen)
 {
 	auto& switches = cur_screen.getSwitches();
@@ -318,7 +359,7 @@ bool Player::move_to_switch(const int& next_x, const int& next_y, Screen& cur_sc
 }
 
 // Copied from tirgul with Amir Kirsh 
-void Player::handleKeyPressed(const char & key_pressed) {
+void Player::handleKeyPressed(const char& key_pressed) {
 	size_t index = 0;
 	for (char k : keys) {
 		if (std::tolower(k) == std::tolower(key_pressed)) {
@@ -330,13 +371,13 @@ void Player::handleKeyPressed(const char & key_pressed) {
 }
 
 
-bool Player::move_to_riddle(const int& next_x, const int & next_y, Screen& cur_screen)
+bool Player::move_to_riddle(const int& next_x, const int& next_y, Screen& cur_screen)
 {
-	
+
 	// if answer is correct
 	if (getsolvedRiddle() == 1)
 	{
-		cur_screen.setCharAt(next_x, next_y, ' ');
+		cur_screen.setCharAt(next_x, next_y, Object::SPACE);
 		x = next_x;
 		y = next_y;
 		setsolvedRiddle(-2);
@@ -354,8 +395,8 @@ bool Player::move_to_riddle(const int& next_x, const int & next_y, Screen& cur_s
 	for (auto& riddle : cur_screen.get_riddles()) {
 		if (riddle.getX() == next_x && riddle.getY() == next_y && riddle.getisActive()) {
 			riddle.set_player_activated(ch);
-			riddle.setActivated(true); 
-			setsolvedRiddle(-1); 
+			riddle.setActivated(true);
+			setsolvedRiddle(-1);
 			return true;
 		}
 	}
@@ -367,7 +408,7 @@ bool Player::move_to_door(Door& door, Screen& cur_screen)
 	if (!door.getisActive())
 		return false;
 
-	if (door.getNumKeyNeeded() > 0 && getHeldItem() == 'K') {
+	if (door.getNumKeyNeeded() > 0 && getHeldItem() == Object::KEY) {
 		door.openDoor();
 		setHeldItem('\0', cur_screen);
 	}
@@ -378,11 +419,11 @@ bool Player::move_to_door(Door& door, Screen& cur_screen)
 	{
 		this->current_room_id = door.getTargetRoom();
 		cur_screen.set_player_moved();
+		this->just_disposed = true;
 
-		if (cur_screen.get_players_moved() < 2) {
-			draw(' ');
-			hideForTransition();
-		}
+		draw(Object::SPACE);
+		hideForTransition();
+
 		return false;
 	}
 	//if you don't have the key, stay in place
@@ -391,7 +432,7 @@ bool Player::move_to_door(Door& door, Screen& cur_screen)
 }
 
 //If moved to obstacle
-bool Player::move_to_obstacle(Screen& cur_screen, vector<Player>& _players,int _x,int _y)
+bool Player::move_to_obstacle(Screen& cur_screen, vector<Player>& _players, int _x, int _y)
 {
 
 	for (auto& obstacle : cur_screen.get_obstacles())
@@ -420,9 +461,9 @@ bool Player::move_to_obstacle(Screen& cur_screen, vector<Player>& _players,int _
 			{
 				setDirection(Direction::STAY);
 			}
-			
+
 		}
-		
+
 	}
 	return false;
 }
@@ -431,7 +472,7 @@ bool Player::move_to_obstacle(Screen& cur_screen, vector<Player>& _players,int _
 bool Player::move_to_bomb(const int& next_x, const int& next_y, Screen& cur_screen)
 {
 	if (!hasItem()) {
-		setHeldItem('@', cur_screen); // pick up bomb and update legend
+		setHeldItem(Object::BOMB, cur_screen); // pick up bomb and update legend
 		for (auto& bomb : cur_screen.get_bombs())
 		{
 			if (bomb.getX() == next_x && bomb.getY() == next_y)
@@ -441,8 +482,8 @@ bool Player::move_to_bomb(const int& next_x, const int& next_y, Screen& cur_scre
 				break;
 			}
 		}
-		
-		cur_screen.setCharAt(next_x, next_y, ' '); // remove bomb from screen
+
+		cur_screen.setCharAt(next_x, next_y, Object::SPACE); // remove bomb from screen
 		x = next_x; // go to bomb spot
 		y = next_y;
 		return false;
@@ -459,7 +500,7 @@ bool Player::move_to_spring(const int& next_x, const int& next_y, Screen& cur_sc
 	if (spring && p_dir == getOppositeDirection(spring->getDir())) {
 		if (boost_count < spring->getLength()) {
 			boost_count++;
-			cur_screen.setCharAt(next_x, next_y, ' ');
+			cur_screen.setCharAt(next_x, next_y, Object::SPACE);
 			cur_screen.draw(next_x, next_y);
 		}
 		x = next_x;
@@ -481,8 +522,8 @@ void Player::setBoost(int speed, int time, Direction dir) {
 bool Player::take_key(Screen& cur_screen, const int& next_x, const int& next_y)
 {
 	if (!hasItem() && !getJustDisposed()) { // if doesn't have held item
-		setHeldItem('K', cur_screen); // pick up key and update legend
-		cur_screen.setCharAt(next_x, next_y, ' '); // remove key from screen
+		setHeldItem(Object::KEY, cur_screen); // pick up key and update legend
+		cur_screen.setCharAt(next_x, next_y, Object::SPACE); // remove key from screen
 		x = next_x; // go to key spot
 		y = next_y;
 		return false;
@@ -494,12 +535,6 @@ bool Player::take_key(Screen& cur_screen, const int& next_x, const int& next_y)
 
 // Copied from tirgul with Amir Kirsh
 void Player::setDirection(Direction dir) {
-	if (boost_time > 0) {
-		if (dir == Direction::STAY || dir == getOppositeDirection(boost_dir)) {
-			return;
-		}
-		boost_dir = dir;
-	}
 	if (dir != Direction::STAY && dir != Direction::DISPOSE) {
 		p_dir = dir;
 	}

@@ -98,6 +98,9 @@ public:
 	//Set the player's life
 	void setLife(int value) { life.setData(value); }
 
+	//Handle collision with other objects
+	bool handleCollision(char target_char, int next_x, int next_y, Screen& cur_screen);
+
 	//Set the player's Score
 	void upScore() { score.setData(score.getData() + 15); }
 

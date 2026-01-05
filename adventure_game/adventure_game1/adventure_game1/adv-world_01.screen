@@ -1,30 +1,30 @@
-LWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-W               W                                 W       W                    W
-W               W                                         W                    W
-W               W                                         W                    W  
-W               W                                         W                    W
-W               W                                         W                    W
-WWWWWWWWWWWWWWWWW                                         W                    W
-           K                                              W     WWWWWWWWWWWWWWWW
-W                                                                            W
-W                                                 W                            W
-W                                                 W                            W
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWW
-W         ?                                                                    W
-W                                      *****                             W
-W                **                                                         WW
-W###       ?                   K                                               W
-W                                                    ******                  WW
-W                   ?                                       *                   W
-W                                                          *                   W
-W         ?                         WWWWWWWWWWWWWWW         *                   W
-W                ?                  W                       *                   W
-W       @            @             W       K               ****       @        W    
-W              ?                    W###                                        W
-W                                                                     KKK     7W   
+LWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+W                                                                              W
+W                                                                              W
+W                                                                              W
+W                                                                              W
+W                                                                              W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                            W
+W               W    *    W    *       W          *                            W
+W@              *    W    W    W       W    K     *                            W
+W               W    W    W    W       W          W                            W
+W               W    W    *    W       *          W                            W
+WWWWWWWWWWWWWWWWW?WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW**WWWWWWWWWWWWWWWWWWWWWWWWW
+W            W                                    W                            W
+W            W                                    W                            W
+W    K       W                                    W     WWWWWWWWWWWWWWWWWWWWWWWW
+W            W                                    W     W                      W
+W            W                                    W     W       WWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWW                                    W     ?       W              W
+W                                                 W     W       W              W
+W                                  WWWWWWWWWWWWWWWW     W       W     WWWWW**WWW
+W                                  W              *     W       W     W        W
+W                                  W###           *     W       W     W        W
+W                                  W              *     W             W        W
+W                                                 W     W       W     W       7W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 END_POS:77,23
 DOOR_7_DEST:2
 DOOR_7_KEYS:2
 DOOR_7_LINKED:0
-START_POS:1,22
+START_POS:17,20
