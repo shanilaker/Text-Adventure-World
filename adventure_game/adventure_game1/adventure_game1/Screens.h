@@ -7,6 +7,7 @@
 class Screens
 {
 	Screen game_screens[7];
+	int total_riddle_screens_loaded = 0;
 
 public:
 
@@ -24,5 +25,7 @@ public:
 
 	//Count number of riddles at the game
 	size_t getTotalRiddlesCount();
+
+	int getTotalRiddleScreensCount() const { return total_riddle_screens_loaded; }
 };
 

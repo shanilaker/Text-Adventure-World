@@ -46,13 +46,17 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
                 cur_screen.draw();
                 for (auto& p : players) {
                     if (p.getIsActive()){
+                        if (p.get_char() == riddle.get_player_activated())
+                        {
+                            p.upScore();
+                        }
+
                         if (p.getsolvedRiddle() == -1){
                             p.setsolvedRiddle(1);
                         }
 
                         if (!p.isWaiting()){
                             p.draw(' ');
-                            //p.move(cur_screen, the_game);
                             p.draw();
                         }
                     }
@@ -68,6 +72,11 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
                 for (auto& p : players) {
                     if (p.getIsActive())
                     {
+                        if (p.get_char() == riddle.get_player_activated())
+                        {
+                            p.downScore();
+                        }
+
                         if (p.getsolvedRiddle() == -1) {
                             p.setsolvedRiddle(0);
                         }
@@ -102,7 +111,13 @@ void Riddle::load(const std::string& filename)
 {
     Point l_p;
     std::ifstream screen_file(filename);
-    if (!screen_file.is_open()) return;
+    if (!screen_file.is_open()) {
+        throw std::runtime_error("Critical Error: Riddle file " + filename + " is missing!");
+    }
+
+    if (screen_file.peek() == std::ifstream::traits_type::eof()) {
+        throw std::runtime_error("Critical Error: Screen file " + filename + " is empty (no content found)!");
+    }
 
     int curr_row = 0;
     int curr_col = 0;
@@ -143,6 +158,12 @@ void Riddle::load(const std::string& filename)
     }
 
     screen_file.close();
+
+    
+
+    if (answer == '\0') {
+        throw std::runtime_error("Error: Riddle " + filename + " is corrupted. No 'ANSWER:' found.");
+    }
 }
 
 void Riddle::updateOutValues(std::string str, char c)

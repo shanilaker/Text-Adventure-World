@@ -353,6 +353,7 @@ bool Player::move_to_riddle(const int& next_x, const int & next_y, Screen& cur_s
 
 	for (auto& riddle : cur_screen.get_riddles()) {
 		if (riddle.getX() == next_x && riddle.getY() == next_y && riddle.getisActive()) {
+			riddle.set_player_activated(ch);
 			riddle.setActivated(true); 
 			setsolvedRiddle(-1); 
 			return true;

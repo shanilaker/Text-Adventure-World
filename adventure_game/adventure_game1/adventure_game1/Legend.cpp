@@ -59,29 +59,46 @@ void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
 {
     for (size_t i = 0; i < players.size(); i++)
     {
-        //Update onlt the player that change his values
         if (players[i].get_char() == ch)
         {
             int row = (i == 0) ? p.getY() + 1 : p.getY() + 3;
-            int holdX = p.getX() + 61; 
             int lifeX = p.getX() + 23;
+            int scoreX = p.getX() + 44;
+            int holdX = p.getX() + 61;
 
             char itemToShow = players[i].getHeldItem();
-            if (itemToShow == '\0') {
-                cur_screen.setCharAt(holdX, row, ' ');
-            }
-            else {
-                cur_screen.setCharAt(holdX, row, itemToShow);
+            char finalItem = (itemToShow == '\0') ? ' ' : itemToShow;
+
+            cur_screen.setCharAt(holdX, row, finalItem); 
+            gotoxy(holdX, row);                          
+            std::cout << finalItem;                     
+
+            std::string life_s = std::to_string(players[i].getLife().getData());
+            cur_screen.setCharAt(lifeX, row, life_s[0]);
+            gotoxy(lifeX, row);
+            std::cout << life_s[0];
+
+            std::string score_s = std::to_string(players[i].getScore().getData());
+
+            for (int j = 0; j < 5; j++) {
+                cur_screen.setCharAt(scoreX + j, row, ' '); 
+                gotoxy(scoreX + j, row);
+                std::cout << ' ';                           
             }
 
-            std::string s = std::to_string(players[i].getLife().getData());
-            const char* c = s.c_str();
+            
+            for (int j = 0; j < (int)score_s.length(); j++) {
+                cur_screen.setCharAt(scoreX + j, row, score_s[j]); 
+                gotoxy(scoreX + j, row);
+                std::cout << score_s[j];                        
+            }
 
-            cur_screen.setCharAt(lifeX, row, *c);
+            std::cout.flush();
             break;
         }
     }
 }
+
 
 //Draw the legend
 void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& players)

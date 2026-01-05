@@ -99,7 +99,10 @@ public:
 	void setLife(int value) { life.setData(value); }
 
 	//Set the player's Score
-	void setScore(int value) { score.setData(value); }
+	void upScore() { score.setData(score.getData() + 15); }
+
+	//Set the player's Score
+	void downScore() { score.setData(score.getData() - 20); }
 
 	//Get the player's life
 	Point getLife() const { return life; }
