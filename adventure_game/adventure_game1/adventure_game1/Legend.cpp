@@ -54,46 +54,48 @@ Legend::Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 
     }
 }
 
-//Update the legend values
-void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
+void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen, bool force_update)
 {
-    for (size_t i = 0; i < players.size(); i++)
+    for (auto& p_ref : players)
     {
-        if (players[i].get_char() == ch)
+        if (p_ref.get_char() == ch)
         {
-            int row = (i == 0) ? p.getY() + 1 : p.getY() + 3;
+            int row = (ch == players[0].get_char()) ? p.getY() + 1 : p.getY() + 3;
             int lifeX = p.getX() + 23;
             int scoreX = p.getX() + 44;
             int holdX = p.getX() + 61;
 
-            char itemToShow = players[i].getHeldItem();
-            char finalItem = (itemToShow == '\0') ? Object::SPACE : itemToShow;
-
-            cur_screen.setCharAt(holdX, row, finalItem); 
-            gotoxy(holdX, row);                          
-            std::cout << finalItem;                     
-
-            std::string life_s = std::to_string(players[i].getLife().getData());
-            cur_screen.setCharAt(lifeX, row, life_s[0]);
-            gotoxy(lifeX, row);
-            std::cout << life_s[0];
-
-            std::string score_s = std::to_string(players[i].getScore().getData());
-
-            for (int j = 0; j < 5; j++) {
-                cur_screen.setCharAt(scoreX + j, row, Object::SPACE);
-                gotoxy(scoreX + j, row);
-                std::cout << ' ';
+          
+            int currentLife = p_ref.getLife().getData();
+            if (force_update || currentLife != p_ref.getLastLife())
+            {
+                gotoxy(lifeX, row);
+                std::cout << "   "; 
+                gotoxy(lifeX, row);
+                std::cout << currentLife;
+                p_ref.setLastLife(currentLife);
             }
 
             
-            for (int j = 0; j < (int)score_s.length(); j++) {
-                cur_screen.setCharAt(scoreX + j, row, score_s[j]); 
-                gotoxy(scoreX + j, row);
-                std::cout << score_s[j];                        
+            int currentScore = p_ref.getScore().getData();
+            if (force_update || currentScore != p_ref.getLastScore())
+            {
+                gotoxy(scoreX, row);
+                std::cout << "      ";
+                gotoxy(scoreX, row);
+                std::cout << currentScore;
+                p_ref.setLastScore(currentScore);
             }
 
-            std::cout.flush();
+            
+            char currentItem = p_ref.getHeldItem();
+            if (force_update || currentItem != p_ref.getLastItem())
+            {
+                gotoxy(holdX, row);
+                if (currentItem == '\0') std::cout << ' ';
+                else std::cout << currentItem;
+                p_ref.setLastItem(currentItem);
+            }
             break;
         }
     }
@@ -101,13 +103,12 @@ void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen)
 
 
 
-//Draw the legend
-void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& players)
+
+void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& players, bool first)
 {
     int l_x = p.getX();
     int l_y = p.getY();
 
-    //Create the frame
     for (int j = l_y; j < l_y + 6; j++)
     {
         if (j < 0 || j >= Game::MAX_Y) continue;
@@ -119,51 +120,45 @@ void Legend::draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& play
             else if (i == l_x || i == l_x + 75)
                 board[j][i] = '|';
             else
-                board[j][i] = Object::SPACE;
+                board[j][i] = ' ';
         }
     }
 
-    //GEMINI
     auto writeAt = [&](int x, int y, const char* str) {
-        if (y < 0 || y >= Game::MAX_Y) return;
         for (int i = 0; str[i] != '\0'; i++) {
-            if (x + i >= 0 && x + i < Game::MAX_X && board[y][x + i] != '|') {
+            if (x + i < Game::MAX_X && board[y][x + i] != '|')
                 board[y][x + i] = str[i];
-            }
         }
         };
 
-    const char* p1_header = "  PLAYER 1  >>  LIFE:          |  SCORE:        |  HOLD: ";
-    const char* p2_header = "  PLAYER 2  >>  LIFE:          |  SCORE:        |  HOLD: ";
-
+    const char* p1_header = "  PLAYER 1  >>  LIFE:           |  SCORE:        |  HOLD: ";
+    const char* p2_header = "  PLAYER 2  >>  LIFE:           |  SCORE:        |  HOLD: ";
     writeAt(l_x + 1, l_y + 1, p1_header);
     writeAt(l_x + 1, l_y + 3, p2_header);
 
-    
-
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < (int)players.size() && i < 2; i++) {
         int row = (i == 0) ? l_y + 1 : l_y + 3;
-
-        
-        int lifeX = l_x + 23;
-        int scoreX = l_x + 44;
-        int holdX = l_x + 61;
-
-        players[i].getLife().setX(lifeX);
+        players[i].getLife().setX(l_x + 23);
         players[i].getLife().setY(row);
-
-        players[i].getScore().setX(scoreX);
+        players[i].getScore().setX(l_x + 44);
         players[i].getScore().setY(row);
 
-       
-        writeAt(lifeX, row, std::to_string(players[i].getLife().getData()).c_str());
-        writeAt(scoreX, row, std::to_string(players[i].getScore().getData()).c_str());
+        players[i].setLastLife(-99);
+        players[i].setLastScore(-99);
+        players[i].setLastItem('\1');
 
-        char itemStr[2] = { players[i].getHeldItem(), '\0' };
-        writeAt(holdX, row, itemStr);
+        if (first) {
+            std::string lifeStr = std::to_string(players[i].getLife().getData());
+            writeAt(l_x + 23, row, lifeStr.c_str());
+
+            std::string scoreStr = std::to_string(players[i].getScore().getData());
+            writeAt(l_x + 44, row, scoreStr.c_str());
+
+            char item = players[i].getHeldItem();
+            char itemStr[2] = { (item == '\0' ? ' ' : item), '\0' };
+            writeAt(l_x + 61, row, itemStr);
+        }
     }
-
-  
 }
 
 bool Legend::isPointInLegend(int x, int y) const {

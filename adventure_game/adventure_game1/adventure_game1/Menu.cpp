@@ -2,16 +2,13 @@
 
 Menu::Menu(Screens& s) : screens(s) {}
 
-// Handles user input and state transitions for non-playing game states
 GameState Menu::run(GameState current_state, int& current_room_id, vector<Player>& players, char key)
 {
-
-    //GAME STATE IS MENU
     if (current_state == GameState::MENU)
     {
         bool not_vaild_over_screen = false;
         bool not_vaild_on_objects = false;
-        // Start a new game
+
         if (key == '1')
         {
             cls();
@@ -20,72 +17,95 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
             if (test_result == GameState::MENU) {
                 return GameState::MENU;
             }
-            
-            current_room_id = GameState::PLAYING;
+
+            current_room_id = 1;
             auto& start_screen = screens.getgame_screens()[current_room_id];
 
-            //RESET PLAYERS AND SCREENS
-            for (auto& p : players) { 
-                p.reset(); 
+            for (auto& p : players) {
+                p.reset();
                 p.setPosition(start_screen.getStartPos());
             }
-            for (int i = 1; i < 4; i++) { screens.getgame_screens()[i].reset(players); }
-            
-            start_screen.draw();
-            start_screen.get_screen_legend().draw(start_screen.getBoard(), players);
-            for (auto& p : players) {
-                p.draw(); 
+            for (int i = 1; i < 4; i++) {
+                if (i == 1)
+                {
+                    screens.getgame_screens()[i].reset(players,true);
+                }
+
+                else
+                {
+                    screens.getgame_screens()[i].reset(players, false);
+                }
+                
             }
+
+            start_screen.draw();
+
+            for (auto& p : players) {
+                start_screen.get_screen_legend().update_values(p.get_char(), players, start_screen);
+            }
+
+            for (auto& p : players) {
+                p.draw();
+            }
+
             return GameState::PLAYING;
-            
-            
         }
-        // EXIT the game
+
         if (key == '9')
         {
             return GameState::EXIT;
         }
-        // Go to instructions screen
+
         if (key == '8')
         {
             cls();
-            current_room_id = GameState::INSTRUCTIONS; //4 = INSTRUCTIONS
+            current_room_id = GameState::INSTRUCTIONS;
             screens.getgame_screens()[current_room_id].draw();
             return GameState::INSTRUCTIONS;
         }
     }
 
-    // STATE: INSTUCTIONS
     if (current_state == GameState::INSTRUCTIONS)
     {
-        //go back to menu if player pressed ESC
         if (key == Keys::ESC)
         {
-            current_room_id = GameState::MENU; // MENU = 0
+            current_room_id = GameState::MENU;
             screens.getgame_screens()[current_room_id].draw();
             return GameState::MENU;
         }
     }
 
-    //STATE: PAUSED
     if (current_state == GameState::PAUSED)
     {
-        // Return to menu if player pressed "H"
         if (key == 'H' || key == 'h')
         {
-            current_room_id = GameState::MENU; //MENU
+            current_room_id = GameState::MENU;
             screens.getgame_screens()[MENU].draw();
 
-            // Reset players' and room states for new game
             for (auto& p : players) { p.reset(); }
-            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(players); }
+            for (int i = 1; i < 4; i++) {
+                if (i == 1)
+                {
+                    screens.getgame_screens()[i].reset(players, true);
+                }
+
+                else
+                {
+                    screens.getgame_screens()[i].reset(players, false);
+                }
+            }
             return GameState::MENU;
         }
-        // Resume game if player pressed ESC again
         else if (key == Keys::ESC)
         {
             cls();
-            screens.getgame_screens()[current_room_id].draw();
+            auto& curr_screen = screens.getgame_screens()[current_room_id];
+            curr_screen.draw();
+
+            for (auto& p : players) {
+                curr_screen.get_screen_legend().update_values(p.get_char(), players, curr_screen);
+            }
+
             for (auto& p : players) {
                 if (p.getIsActive()) {
                     p.draw();
@@ -95,27 +115,33 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
         }
     }
 
-    //STATE: END GAME OR LOSE
     if (current_state == GameState::END_GAME || current_state == GameState::LOSE)
     {
-        //go back to menu if player pressed ESC
         if (key == Keys::ESC)
         {
             current_room_id = GameState::MENU;
             screens.getgame_screens()[current_room_id].draw();
-            // Reset players' and room states for new game
             for (auto& p : players) { p.reset(); }
-            for (int i = 1; i < 3; i++) { screens.getgame_screens()[i].reset(players); }
+            for (int i = 1; i < 4; i++) { 
+                if (i == 1)
+                {
+                    screens.getgame_screens()[i].reset(players, true);
+                }
+
+                else
+                {
+                    screens.getgame_screens()[i].reset(players, false);
+                }
+            }
             return GameState::MENU;
         }
     }
 
-
     if (current_state == GameState::LOSE) {
         cls();
-        screens.getgame_screens()[GameState::LOSE].draw(); //show LOSE screen
+        screens.getgame_screens()[GameState::LOSE].draw();
     }
-    // no state transition happened - keep same state;
+
     return current_state;
 }
 

@@ -22,7 +22,7 @@ Screen::Screen()
 }
 
 // Resets screen for next gane
-void Screen::reset(vector<Player>& players)
+void Screen::reset(vector<Player>& players, bool first)
 {
     for (int i = 0; i < Game::MAX_Y; i++)
     {
@@ -31,9 +31,18 @@ void Screen::reset(vector<Player>& players)
             screen[i][j] = screen_reset[i][j];
         }
     }
+    if (first)
+    {
+        screen_legend.draw(screen, players,true);
+        screen_legend.draw(screen_reset, players,true);
+    }
 
-    screen_legend.draw(screen, players);
-    screen_legend.draw(screen_reset, players);
+    else
+    {
+        screen_legend.draw(screen, players,false);
+        screen_legend.draw(screen_reset, players,false);
+    }
+    
     for (int i = 0; i < riddles.size();i++)
     {
         riddles[i].reset();
@@ -149,16 +158,14 @@ void Screen::restoreSprings() {
 
 void Screen::drawDark(vector<Player>& players) const {
     int radius = 6;
-
     int legX = screen_legend.getPoint().getX();
     int legY = screen_legend.getPoint().getY();
 
     for (int i = 0; i < Game::MAX_Y; i++) {
         std::string line = "";
-
         for (int j = 0; j < Game::MAX_X; j++) {
             char current_map_char = screen[i][j];
-            char char_to_draw = Object::SPACE;
+            char char_to_draw = ' '; // שטח חשוך
 
             bool in_light = false;
             bool is_border = (i == 0 || i == Game::MAX_Y - 1 || j == 0 || j == Game::MAX_X - 1);
@@ -177,10 +184,9 @@ void Screen::drawDark(vector<Player>& players) const {
 
             if (in_light || is_border || is_torch || is_legend) {
                 char_to_draw = current_map_char;
-
                 if (in_light) {
                     for (int p = 0; p < 2; p++) {
-                        if (players[p].isActive() && !players[p].isWaiting() && players[p].getX() == j && players[p].getY() == i) {
+                        if (players[p].getIsActive() && !players[p].isWaiting() && players[p].getX() == j && players[p].getY() == i) {
                             char_to_draw = players[p].get_char();
                         }
                     }
@@ -188,13 +194,16 @@ void Screen::drawDark(vector<Player>& players) const {
             }
             line += char_to_draw;
         }
-
         gotoxy(0, i);
         std::cout << line;
     }
+
+   
+    for (auto& p : players) {
+        const_cast<Legend&>(screen_legend).update_values(p.get_char(), const_cast<vector<Player>&>(players), const_cast<Screen&>(*this), true);
+    }
     std::cout.flush();
 }
-
 
 //From tirgul with amir
 void Screen::load(const std::string& filename, int index, Riddles& riddles_array)
@@ -300,12 +309,12 @@ void Screen::createFrame(int last_row)
 {
     // add a closing frame
     // first line
-#pragma warning(suppress : 4996) 
+    #pragma warning(suppress : 4996) 
     strcpy(screen[0], std::string(Game::MAX_X, Object::WALL).c_str());
     screen[0][Game::MAX_X] = '\0';
 
     // last line
-#pragma warning(suppress : 4996) 
+    #pragma warning(suppress : 4996) 
     strcpy(screen[last_row], std::string(Game::MAX_X, Object::WALL).c_str());
     screen[last_row][Game::MAX_X] = '\0';
 
