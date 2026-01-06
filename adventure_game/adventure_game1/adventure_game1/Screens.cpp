@@ -30,7 +30,7 @@ Screens::Screens() {
 	std::vector<std::string> riddleFileNames;
 	riddles_array.getAllRiddleFileNames(riddleFileNames);
 	total_riddle_screens_loaded = (int)riddleFileNames.size();
-
+	game_screens.resize(fileNames.size());
 	//Load all the screens
 	for (const auto& filename : fileNames)
 	{

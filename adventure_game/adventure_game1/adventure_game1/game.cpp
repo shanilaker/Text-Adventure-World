@@ -20,15 +20,6 @@ void Game::run()
 	players.push_back(Player(20, 20, 0, 0, '$', "wdxase", 0, false));
 	players.push_back(Player(10, 10, 0, 0, '&', "ilmjko", 0, false));
 
-
-	for (auto& p : players)
-	{
-		p.set_players(players);
-	}
-
-
-
-
 	//Main game loop until player chose EXIT
 	while (game_state != GameState::EXIT) {
 
@@ -147,13 +138,12 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 	for (auto& p : players)
 	{
 		if (p.getIsActive() && p.getCurrentRoomID() == current_room && !p.isWaiting()) {
-			Player& other = (&p == &players[0]) ? players[1] : players[0];
 			// Clear player's previous position
 			if (!p.isWaiting() && !p.getJustDisposed()) {
 				p.draw(Object::SPACE);
 			}
 			// Move the player
-			if (p.move(current_screen, the_game, other)) {
+			if (p.move(current_screen, the_game, players)) {
 
 				for (auto& riddle : current_screen.get_riddles())
 				{
@@ -172,9 +162,6 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 		// If room is dark, draw only parts that has light
 		if (current_screen.getIsDark()) {
 			current_screen.drawDark(players);
-			for (auto& p : players) {
-				current_screen.get_screen_legend().update_values(p.get_char(), players, current_screen, true);
-			}
 		}
 	}
 
@@ -184,17 +171,13 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 
 void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const Point& spawnPoint, int current_room)
 {
-	next_screen.draw();
-
-	for (auto& p : players)
-	{
-		next_screen.get_screen_legend().update_values(p.get_char(), players, next_screen,true);
-	}
+	next_screen.draw();	
 
 	for (auto& p : players)
 	{
 		if (p.getIsActive())
 		{
+			next_screen.get_screen_legend().update_values(p, next_screen);
 			if (p.getCurrentRoomID() == current_room)
 			{
 				p.setPosition(spawnPoint);

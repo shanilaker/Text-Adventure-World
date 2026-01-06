@@ -41,7 +41,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
             start_screen.draw();
 
             for (auto& p : players) {
-                start_screen.get_screen_legend().update_values(p.get_char(), players, start_screen);
+                start_screen.get_screen_legend().update_values(p, start_screen);
             }
 
             for (auto& p : players) {
@@ -103,7 +103,7 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
             curr_screen.draw();
 
             for (auto& p : players) {
-                curr_screen.get_screen_legend().update_values(p.get_char(), players, curr_screen);
+                curr_screen.get_screen_legend().update_values(p, curr_screen);
             }
 
             for (auto& p : players) {

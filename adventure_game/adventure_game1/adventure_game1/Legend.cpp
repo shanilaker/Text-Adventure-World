@@ -54,51 +54,37 @@ Legend::Legend(Point _p, const char _incoming_screen[Game::MAX_Y][Game::MAX_X + 
     }
 }
 
-void Legend::update_values(char ch, vector<Player>& players, Screen& cur_screen, bool force_update)
+void Legend::update_values(const Player& p_ref, Screen& cur_screen)
 {
-    for (auto& p_ref : players)
-    {
-        if (p_ref.get_char() == ch)
-        {
-            int row = (ch == players[0].get_char()) ? p.getY() + 1 : p.getY() + 3;
-            int lifeX = p.getX() + 23;
-            int scoreX = p.getX() + 44;
-            int holdX = p.getX() + 61;
+    int row = (p_ref.get_char() == '$') ? p.getY() + 1 : p.getY() + 3;
+    int l_x = p.getX();
 
-          
-            int currentLife = p_ref.getLife().getData();
-            if (force_update || currentLife != p_ref.getLastLife())
-            {
-                gotoxy(lifeX, row);
-                std::cout << "   "; 
-                gotoxy(lifeX, row);
-                std::cout << currentLife;
-                p_ref.setLastLife(currentLife);
-            }
+    int currentLife = p_ref.getLife().getData();
+    cur_screen.setCharAt(l_x + 23, row, std::to_string(currentLife)[0]);
+    gotoxy(l_x + 23, row);
+    std::cout << currentLife << "  ";
+    const_cast<Player&>(p_ref).setLastLife(currentLife);
 
-            
-            int currentScore = p_ref.getScore().getData();
-            if (force_update || currentScore != p_ref.getLastScore())
-            {
-                gotoxy(scoreX, row);
-                std::cout << "      ";
-                gotoxy(scoreX, row);
-                std::cout << currentScore;
-                p_ref.setLastScore(currentScore);
-            }
-
-            
-            char currentItem = p_ref.getHeldItem();
-            if (force_update || currentItem != p_ref.getLastItem())
-            {
-                gotoxy(holdX, row);
-                if (currentItem == '\0') std::cout << ' ';
-                else std::cout << currentItem;
-                p_ref.setLastItem(currentItem);
-            }
-            break;
-        }
+    int currentScore = p_ref.getScore().getData();
+    std::string s = std::to_string(currentScore);
+    for (int j = 0; j < 5; j++) {
+        cur_screen.setCharAt(l_x + 44 + j, row, ' ');
+        gotoxy(l_x + 44 + j, row);
+        std::cout << ' ';
     }
+    for (int j = 0; j < (int)s.length(); j++) {
+        cur_screen.setCharAt(l_x + 44 + j, row, s[j]);
+        gotoxy(l_x + 44 + j, row);
+        std::cout << s[j];
+    }
+    const_cast<Player&>(p_ref).setLastScore(currentScore);
+
+    char currentItem = p_ref.getHeldItem();
+    char finalI = (currentItem == '\0') ? ' ' : currentItem;
+    cur_screen.setCharAt(l_x + 61, row, finalI);
+    gotoxy(l_x + 61, row);
+    std::cout << finalI;
+    const_cast<Player&>(p_ref).setLastItem(currentItem);
 }
 
 

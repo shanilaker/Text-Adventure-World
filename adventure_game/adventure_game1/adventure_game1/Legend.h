@@ -32,7 +32,7 @@ public:
 	bool get_on_objects() const { return on_objects; }
 
 	//Update the legend values
-	void update_values(char ch, vector<Player>& players, Screen& cur_screen, bool force_update = false);
+	void update_values(const Player& p_ref, Screen& cur_screen);
 
 	//If the point is in the legend
 	bool isPointInLegend(int x, int y) const;

@@ -29,7 +29,6 @@ class Player
 	Direction p_dir = Direction::STAY;
 	Point life;
 	Point score;
-	static vector<Player> players;
 	int last_life_shown = 3;
 	int last_score_shown = 0;
 	char last_item_shown = '\0';
@@ -49,9 +48,6 @@ public:
 
 	//reset the player values
 	void reset();
-
-	//Set the players
-	void set_players(vector<Player>& _players) { players = _players; }
 
 	//Take the key if can
 	bool take_key(Screen& cur_screen, const int& next_x, const int& next_y);
@@ -93,7 +89,7 @@ public:
 	void kill();
 
 	//Move the player
-	bool move(Screen& cur_screen, Game the_game, Player& other_player);
+	bool move(Screen& cur_screen, Game the_game, vector<Player>& players);
 
 	//Set the player's direction
 	void setDirection(Direction dir);
@@ -102,7 +98,7 @@ public:
 	void setLife(int value) { life.setData(value); }
 
 	//Handle collision with other objects
-	bool handleCollision(char target_char, int next_x, int next_y, Screen& cur_screen);
+	bool handleCollision(char target_char, int next_x, int next_y, Screen& cur_screen, vector<Player>& players);
 
 	//Set the player's Score
 	void upScore() { score.setData(score.getData() + 15); }

@@ -6,13 +6,13 @@
 
 class Screens
 {
-	Screen game_screens[7];
+	vector<Screen> game_screens;
 	int total_riddle_screens_loaded = 0;
 
 public:
 
 	//Get the game_screens
-	Screen(&getgame_screens())[7] { return game_screens; }
+	vector<Screen>& getgame_screens() { return game_screens; }
 
 	//Set the game_screens
 	void setgame_screens(Screen s, const int& i) { game_screens[i] = s; }
