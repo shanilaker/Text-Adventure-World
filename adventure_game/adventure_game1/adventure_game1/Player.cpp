@@ -2,8 +2,6 @@
 #include "Screens.h"
 
 
-vector<Player> Player::players;
-
 //Player constructor
 Player::Player(int x1, int y1, int diffx, int diffy, char c, const char(&the_keys)[NUM_KEYS + 1], int room_id, int riddleSolved) :x(x1), y(y1), diff_x(diffx), diff_y(diffy), ch(c), current_room_id(room_id), reset_valueX(x1), reset_valueY(y1), diff_valueX(diffx), diff_valueY(diffy), life(Point(3)), score(Point(0))
 {
@@ -15,14 +13,7 @@ void Player::setHeldItem(char item, Screen& cur_screen)
 {
 	held_item = item;
 
-	for (auto& p : players) {
-		if (p.ch == this->ch) {
-			p.held_item = item;
-			break;
-		}
-	}
-
-	cur_screen.get_screen_legend().update_values(ch, players, cur_screen);
+	cur_screen.get_screen_legend().update_values(*this, cur_screen);
 }
 
 void Player::checkAndkill(int bomb_x, int bomb_y, int& game_state)
@@ -100,8 +91,9 @@ void Player::draw(const char& c) const {
 }
 
 // Reponsible for the player move, calculates his next (x,y) based on speed, direction, and items that appear on its way
-bool Player::move(Screen& cur_screen, Game the_game, Player& other_player)
+bool Player::move(Screen& cur_screen, Game the_game, vector<Player>& players)
 {
+	Player& other_player = (&players[0] == this) ? players[1] : players[0];
 	int cur_speed = (boost_time > 0) ? boost_speed : 1;
 	int next_x = x;
 	int next_y = y;
@@ -264,7 +256,7 @@ bool Player::move(Screen& cur_screen, Game the_game, Player& other_player)
 	}
 
 	// keep moving
-	if (handleCollision(target_char, next_x, next_y, cur_screen)) {
+	if (handleCollision(target_char, next_x, next_y, cur_screen, players)) {
 		if (next_x != x || next_y != y) {
 			setJustDisposed(false);
 		}
@@ -278,7 +270,7 @@ bool Player::move(Screen& cur_screen, Game the_game, Player& other_player)
 	}
 }
 
-bool Player::handleCollision(char target_char, int next_x, int next_y, Screen& cur_screen) {
+bool Player::handleCollision(char target_char, int next_x, int next_y, Screen& cur_screen, vector<Player>& players) {
 
 	// if target is Wall, stay in place
 	if (target_char == Object::WALL || target_char == '|' || target_char == '-') {

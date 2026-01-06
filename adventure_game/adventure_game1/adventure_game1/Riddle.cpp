@@ -94,7 +94,7 @@ void Riddle::checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& pla
 
     for (auto& p : players)
     {
-        cur_screen.get_screen_legend().update_values(p.get_char(), players, cur_screen);
+        cur_screen.get_screen_legend().update_values(p, cur_screen);
     }
 
 }
