@@ -112,6 +112,7 @@ void Game::run()
 				screens.getgame_screens()[prev_room].reset_players_moved();
 				auto& next_screen = screens.getgame_screens()[current_room];
 
+				
 				Point spawnPoint = (current_room > prev_room) ? next_screen.getStartPos() : next_screen.EndPos();
 
 				if (game_state == END_GAME) {
@@ -171,21 +172,24 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 		// If room is dark, draw only parts that has light
 		if (current_screen.getIsDark()) {
 			current_screen.drawDark(players);
+			for (auto& p : players) {
+				current_screen.get_screen_legend().update_values(p.get_char(), players, current_screen, true);
+			}
 		}
 	}
 
 
 }
 
-// Prepares next screen and player positions for it 
+
 void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const Point& spawnPoint, int current_room)
 {
 	next_screen.draw();
 
-	for (auto& p : players) {
-		next_screen.get_screen_legend().update_values(p.get_char(), players, next_screen);
+	for (auto& p : players)
+	{
+		next_screen.get_screen_legend().update_values(p.get_char(), players, next_screen,true);
 	}
-	
 
 	for (auto& p : players)
 	{
@@ -203,6 +207,7 @@ void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const P
 		}
 	}
 }
+
 int Game::calculateNextRoom(int current_room, vector<Player>& players, int& game_state)
 {
 	int room_to_follow = -1;
@@ -225,21 +230,21 @@ int Game::calculateNextRoom(int current_room, vector<Player>& players, int& game
 	if (current_room_is_empty && room_to_follow != -1) {
 		bool both_finished = true;
 		for (auto& p : players) {
-			if (p.getIsActive() && p.getCurrentRoomID() != 4) {
+			if (p.getIsActive() && p.getCurrentRoomID() != END_GAME) {
 				both_finished = false;
 			}
 		}
 
-		if (room_to_follow == 4 && !both_finished) {
+		if (room_to_follow == END_GAME && !both_finished) {
 			for (auto& p : players) {
-				if (p.getIsActive() && p.getCurrentRoomID() != 4) {
+				if (p.getIsActive() && p.getCurrentRoomID() != END_GAME) {
 					return p.getCurrentRoomID();
 				}
 			}
 		}
-		else if (room_to_follow == 4 && both_finished) {
+		else if (room_to_follow == END_GAME && both_finished) {
 			game_state = END_GAME;
-			return 4;
+			return END_GAME;
 		}
 		else {
 			return room_to_follow;

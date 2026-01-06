@@ -23,7 +23,7 @@ public:
 	Point getPoint() const { return p; }
 
 	//Draw the legend
-	void draw(char board [Game::MAX_Y][Game::MAX_X + 1], vector<Player>& players);
+	void draw(char board[Game::MAX_Y][Game::MAX_X + 1], vector<Player>& players, bool first);
 
 	//Get if over_the_screen
 	bool get_over_the_screen() const { return over_the_screen; }
@@ -32,7 +32,7 @@ public:
 	bool get_on_objects() const { return on_objects; }
 
 	//Update the legend values
-	void update_values(char ch, vector<Player>& players, Screen& cur_screen);
+	void update_values(char ch, vector<Player>& players, Screen& cur_screen, bool force_update = false);
 
 	//If the point is in the legend
 	bool isPointInLegend(int x, int y) const;

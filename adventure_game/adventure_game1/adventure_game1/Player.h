@@ -30,6 +30,9 @@ class Player
 	Point life;
 	Point score;
 	static vector<Player> players;
+	int last_life_shown = 3;
+	int last_score_shown = 0;
+	char last_item_shown = '\0';
 
 	int boost_count = 0;
 	int boost_speed = 1;
@@ -185,5 +188,22 @@ public:
 	// Associate with a spring
 	bool move_to_spring(const int& next_x, const int& next_y, Screen& cur_screen);
 
+	//Get last_life_shown
+	int getLastLife() const { return last_life_shown; }
+
+	//Get last_score_shown
+	int getLastScore() const { return last_score_shown; }
+
+	//Get last_item_shown
+	char getLastItem() const { return last_item_shown; }
+
+	//Set last_life_shown
+	void setLastLife(int val) { last_life_shown = val; }
+
+	//Set last_score_shown
+	void setLastScore(int val) { last_score_shown = val; }
+
+	//Set last_item_shown
+	void setLastItem(char val) { last_item_shown = val; }
 };
 

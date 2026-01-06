@@ -47,7 +47,7 @@ public:
 	vector<Riddle>& get_riddles(){ return riddles; }
 
 	//Reset the screen
-	void reset(vector<Player>& players);
+	void reset(vector<Player>& players, bool first);
 	
 	//Draw the all screen
 	void draw() const;
