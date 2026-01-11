@@ -1,0 +1,91 @@
+#pragma once
+#include "Game.h"
+#include <windows.h>
+#include <conio.h>
+#include <iostream>
+#include "Player.h"
+#include <string.h>
+
+using std::cout, std::endl, std::vector;
+
+
+class Riddle
+{
+	int x = 0;
+	int y = 0;
+	char text[Game::MAX_Y][Game::MAX_X + 1] = {};
+	int room_connected = -1;
+	char answer = -1;
+	bool is_active = true;
+	bool activated = false;
+	char player_activated = '*';
+
+public:
+
+	//Ctor
+	Riddle(const char* r_text[Game::MAX_Y], int r_x, int r_y, int r_room_connected, char the_answer);
+	
+	//Empty Ctor
+	Riddle();
+
+	//Show the riddle on the screen
+	void Show_Riddle() const;
+
+	//Get player_activated
+	char get_player_activated() const { return player_activated; }
+
+	//Get is active
+	bool getisActive() const { return is_active; }
+
+	//Get activated
+	bool getActivated() const { return activated; }
+
+	//Set activated
+	void setActivated(bool value) { activated = value; }
+
+	//Set player_activated
+	void set_player_activated(char value) { player_activated = value; }
+
+	//Reset riddle
+	void reset();
+
+	//Deactivates the riddle
+	void kill() { is_active = false; }
+
+	//Get the x
+	int getX() const { return x; }
+
+	//Get the y
+	int getY() const { return y; }
+
+	//Set the x
+	void setX(int value) { x = value; }
+
+	//Set the y
+	void setY(int value) { y = value; }
+
+	//Set room_connected
+	void set_room_connected(int value) { room_connected = value; }
+
+	//Get the answer of the riddle
+	char getAnswer() const { return answer; }
+
+	//Set the is_active
+	void setisActive(const bool& value) { is_active = value; }
+
+	//Check if player's riddle answer is correct and update game accordingly
+	static void checkRiddleAnswer(Screen& cur_screen, char key, vector<Player>& players, Game& the_game);
+
+	//Load the riddle screen from a file
+	void load(const std::string& filename);
+
+	//Update out of the riddle screen values
+	void updateOutValues(std::string str, char c);
+
+	//Save the Riddle state
+	void save(std::ostream& out) const {out << x << " " << y << " " << is_active << " " << activated << " " << player_activated << std::endl;}
+
+	//Load the Riddle state
+	void load(std::istream& in) {in >> x >> y >> is_active >> activated >> player_activated;}
+};
+
