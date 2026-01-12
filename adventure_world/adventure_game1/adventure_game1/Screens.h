@@ -7,6 +7,7 @@
 class Screens
 {
 	vector<Screen> game_screens;
+	vector<std::string> loaded_filenames;
 	int total_riddle_screens_loaded = 0;
 
 public:
@@ -20,8 +21,11 @@ public:
 	//Empty Ctor
 	Screens();
 
-	//Get all the file names of the screens
+	//Get all the file names of the screens from folder
 	void getAllScreenFileNames(std::vector<std::string>& vec_to_fill);
+
+	// Get the loaded filenames of the screens
+	const vector<std::string>& getScreenFileNames() const { return loaded_filenames; }
 
 	//Count number of riddles at the game
 	size_t getTotalRiddlesCount();

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <windows.h> // Required for Windows API console functions
 #include <cstdlib>
+#include "Game.h"
 
 // Used from tirgul with Amir Kirsh
 // Puts cursor on required (x,y) on the screen 
@@ -26,5 +27,6 @@ void hideCursor()
 
 //Clears the screen
 void cls() {
+    if (Game::silent_mode) return;
     system("cls");
 }

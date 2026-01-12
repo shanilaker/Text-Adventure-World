@@ -55,7 +55,7 @@ void Player::reset()
 	diff_y = diff_valueY;
 	held_item = '\0';
 	is_active = true;
-	current_room_id = 0;
+	current_room_id = 1;
 	solvedRiddle = -2;
 	life.setData(3);
 	score.setData(0);
@@ -93,7 +93,7 @@ void Player::draw() const {
 
 // Draw player on the screen with the given char as symbol
 void Player::draw(const char& c) const {
-	if (is_active) {
+	if (is_active && !Game::silent_mode) {
 		gotoxy(x, y);
 		std::cout << c;
 	}

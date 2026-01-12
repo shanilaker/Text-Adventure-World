@@ -10,13 +10,14 @@ void Results::save(const std::string& filename) {
 
 void Results::load(const std::string& filename) {
     std::ifstream file(filename);
+    if (!file.is_open()) return;
     size_t size;
     if (!(file >> size)) return;
     events.clear();
     for (size_t i = 0; i < size; ++i) {
-        int iter, type, d;
-        file >> iter >> type >> d;
-        events.push_back({ iter, type, d });
+        int iter, type, data;
+        if (!(file >> iter >> type >> data)) break; 
+        events.push_back({ iter, type, data });
     }
 }
 

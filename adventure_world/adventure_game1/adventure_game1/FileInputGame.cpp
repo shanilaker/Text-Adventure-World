@@ -1,6 +1,7 @@
 #include "Game.h"
 
 FileInputGame::FileInputGame(bool silent) : is_silent_mode(silent) {
+    Game::silent_mode = silent;
     stepsLibrary.load("adv-world.steps");
     resultsCheck.load("adv-world.result");
 }
@@ -93,4 +94,22 @@ void FileInputGame::handleMismatch(GameEvent expectedType, int expectedTime, con
     (void)_getch();
     validation_failed = true;
     game_state = EXIT;
+}
+
+void FileInputGame::validateScreens(const std::vector<std::string>& current_screens) {
+    if (current_screens != stepsLibrary.getScreenFiles()) {
+        cls();
+        std::cout << "====================================================" << std::endl;
+        std::cout << "           CRITICAL ERROR: SCREEN MISMATCH          " << std::endl;
+        std::cout << "====================================================" << std::endl;
+        std::cout << "The recording was created with different screen files." << std::endl;
+        std::cout << "\nRECORDED: ";
+        for (auto& s : stepsLibrary.getScreenFiles()) std::cout << s << " ";
+        std::cout << "\nCURRENT:  ";
+        for (auto& s : current_screens) std::cout << s << " ";
+        std::cout << "\n\nPress any key to exit..." << std::endl;
+        (void)_getch();
+        validation_failed = true;
+        game_state = EXIT;
+    }
 }

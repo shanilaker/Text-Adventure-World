@@ -53,6 +53,7 @@ protected:
     virtual void doSleep() const = 0;
 public:
     enum { MAX_X = 80, MAX_Y = 25 };
+    static bool silent_mode;
 
     virtual void recordEvent(GameEvent type, int data = 0) = 0;
 
@@ -64,6 +65,8 @@ public:
     virtual bool shouldShowMenu() const { return true; }
 
     virtual void checkValidation(int) {}
+
+    virtual bool isSilent() const { return false; }
 
     //Get the run time of the game
     int getRuntime() const { return run_time; }
@@ -98,7 +101,7 @@ public:
     HumanInputGame(bool save) : is_save_mode(save) { }
 
     //Dtor
-    ~HumanInputGame();//
+    ~HumanInputGame() {};
 
     // Saves a game event to the result tracker
     virtual void recordEvent(GameEvent type, int data = 0) override;
@@ -111,6 +114,9 @@ public:
     
     // Pauses the execution to control the game speed for human play
     virtual void doSleep() const override { Sleep(80); }
+
+    // Get the steps tracker
+    Steps& getStepsTracker() { return stepsTracker; }
 };
 
 class FileInputGame : public Game {
@@ -121,6 +127,8 @@ class FileInputGame : public Game {
 public:
     //Ctor
     FileInputGame(bool silent);
+
+    virtual bool isSilent() const override { return is_silent_mode; }
 
     // Gets the next key from the steps file based on current run_time
     virtual char getInput() override { return stepsLibrary.popNextKey(run_time); }
@@ -136,6 +144,9 @@ public:
 
     // Checks for any events that were skipped or missed in the current execution 
     virtual void checkValidation(int current_iter) override;
+
+    // Validates the current screens against the screen used in loaded game
+    void validateScreens(const std::vector<std::string>& current_screens);
 
 private:
     // Converts a GameEvent enum value to its string representation for display
