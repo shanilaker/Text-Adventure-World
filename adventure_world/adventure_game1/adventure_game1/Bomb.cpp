@@ -78,7 +78,7 @@ void Bomb::explodeBomb(Screen& cur_screen, Game& the_game, int& game_state, vect
 				if (target_char == Object::C_SWITCH || target_char == Object::O_SWITCH)
 				{
 					//Erase
-					for (int i = 0; i <= current_screen.getNumSwitches();i++)
+					for (int i = 0; i < current_screen.getNumSwitches() ;i++)
 					{
 						current_screen.getSwitches()[i].kill();
 						current_screen.setCharAt(x_, y_, Object::SPACE);

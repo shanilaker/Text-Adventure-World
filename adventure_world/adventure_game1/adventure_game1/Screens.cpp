@@ -24,6 +24,7 @@ Screens::Screens() {
 	if (fileNames.empty()) {
 		throw std::runtime_error("No .screen files found in the directory!");
 	}
+	loaded_filenames = fileNames;
 
 	Riddles riddles_array;
 

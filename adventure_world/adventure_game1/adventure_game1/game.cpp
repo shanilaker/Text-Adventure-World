@@ -5,10 +5,19 @@
 #include "Riddle.h"
 #include <iostream>
 
+bool Game::silent_mode = false;
+
 void Game::run()
 {
 	hideCursor();
 	Screens screens; // Initialize the screens manager
+	if (auto* humanGame = dynamic_cast<HumanInputGame*>(this)) {
+		humanGame->getStepsTracker().setScreenFiles(screens.getScreenFileNames());
+	}
+	else if (auto* fileGame = dynamic_cast<FileInputGame*>(this)) {
+		fileGame->validateScreens(screens.getScreenFileNames());
+	}
+	if (game_state == EXIT) return;
 	Menu menu_handler(screens); // Initialize the menu handler with access to screens
 	int current_room = MENU;
 
@@ -53,15 +62,27 @@ void Game::run()
 
 		if (key != '\0')
 		{
+			if (!shouldShowMenu()) {
+				if (game_state == PAUSED && (key == 'H' || key == 'h')) {
+					game_state = EXIT;
+				}
+			}
 			bool state_changed = false;
 			//Handler for menu and non-playing states 
 			if (shouldShowMenu() && (game_state == MENU || game_state == INSTRUCTIONS || game_state == END_GAME || game_state == LOSE || game_state == PAUSED))
 			{
+				int old_state = game_state;
 				GameState next_state = menu_handler.run((GameState)game_state, current_room, players, key);
 				// Check if the game state has changed
 				if ((int)next_state != game_state) {
 					game_state = (int)next_state;
 					state_changed = true;
+
+					if (old_state == PAUSED && game_state == MENU) {
+						if (auto* humanGame = dynamic_cast<HumanInputGame*>(this)) {
+							humanGame->SaveGame();
+						}
+					}
 				}
 			}
 			// riddle state is active, check the player's answer
@@ -82,8 +103,10 @@ void Game::run()
 
 				// Pause and ask the user how he wants to continue
 				if (key == Keys::ESC && shouldShowMenu()) {
-					gotoxy(15, 10);
-					cout << "Game paused: ESC to continue, H for Menu, S to SAVE";
+					if (shouldShowMenu()) {
+						gotoxy(15, 10);
+						cout << "Game paused: ESC to continue, H for Menu, S to SAVE";
+					}
 					game_state = PAUSED;
 				}
 				else {
@@ -124,7 +147,9 @@ void Game::run()
 			// Check if room was completed (both players moved)
 			int next_room = calculateNextRoom(current_room, players);
 			if ((next_room != current_room)) {
-				recordEvent(GameEvent::CHANGE_ROOM, next_room);
+				if (game_state != END_GAME && game_state != EXIT) {
+					recordEvent(GameEvent::CHANGE_ROOM, next_room);
+				}
 				cls();
 				int prev_room = current_room;
 				current_room = next_room;
@@ -208,7 +233,6 @@ void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const P
 	{
 		if (p.getIsActive())
 		{
-			p.setCurrentRoomID(current_room);
 			if (next_screen.get_legend_count() > 0)
 			{ 
 				next_screen.get_screen_legend().update_values(p, next_screen);

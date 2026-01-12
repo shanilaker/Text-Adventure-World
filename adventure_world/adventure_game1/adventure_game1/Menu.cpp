@@ -302,7 +302,7 @@ GameState Menu::savingGameState(int& current_room_id, vector<Player>& players)
    
     std::cout << "\nEnter file number to load, or 0 to cancel: ";
 
-    int choice;
+    int choice = 0;
     bool validChoice = false;
 
     //Wait for the user to enter valid choice

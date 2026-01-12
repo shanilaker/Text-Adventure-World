@@ -20,7 +20,7 @@ Riddle::Riddle() {}
 // Draws riddle on screen
 void Riddle::Show_Riddle() const
 {
-    if (is_active)
+    if (is_active && !Game::silent_mode) 
     {
         cls();
         gotoxy(0, 0);

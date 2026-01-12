@@ -12,7 +12,14 @@ void Door::openDoor()
 		}
 	}
 	// If door is linked to switches - they're already correct and door sets to Open
-	else
+	else if (num_key_needed > 0) {
+		num_key_needed--;
+		if (num_key_needed == 0) 
+		{
+			is_open = true;
+		}
+	}
+	else 
 	{
 		is_open = true;
 	}

@@ -73,19 +73,23 @@ void Screen::reset(vector<Player>& players, bool first)
 
 // Draws a specific (x,y) on the screen
 void Screen::draw(const int& x, const int& y) const {
-    gotoxy(x, y);
-    cout << screen[y][x];
+    if (!Game::silent_mode) {
+        gotoxy(x, y);
+        cout << screen[y][x];
+    }
 }
 
 // Draws screen
 void Screen::draw() const {
-    cls();
-    gotoxy(0, 0);
-    for (size_t i = 0; i < Game::MAX_Y - 1; ++i) {
-        cout << screen[i] << endl;
+    if (!Game::silent_mode) {
+        cls();
+        gotoxy(0, 0);
+        for (size_t i = 0; i < Game::MAX_Y - 1; ++i) {
+            cout << screen[i] << endl;
+        }
+        cout << screen[Game::MAX_Y - 1];
+        cout.flush();
     }
-    cout << screen[Game::MAX_Y - 1];
-    cout.flush();
 }
 
 
@@ -160,48 +164,50 @@ void Screen::restoreSprings() {
 
 
 void Screen::drawDark(vector<Player>& players) const {
-    int radius = 6;
-    int legX = screen_legend.getPoint().getX();
-    int legY = screen_legend.getPoint().getY();
+    if (!Game::silent_mode) {
+        int radius = 6;
+        int legX = screen_legend.getPoint().getX();
+        int legY = screen_legend.getPoint().getY();
 
-    for (int i = 0; i < Game::MAX_Y; i++) {
-        std::string line = "";
-        for (int j = 0; j < Game::MAX_X; j++) {
-            char current_map_char = screen[i][j];
-            char char_to_draw = ' '; 
+        for (int i = 0; i < Game::MAX_Y; i++) {
+            std::string line = "";
+            for (int j = 0; j < Game::MAX_X; j++) {
+                char current_map_char = screen[i][j];
+                char char_to_draw = ' ';
 
-            bool in_light = false;
-            bool is_border = (i == 0 || i == Game::MAX_Y - 1 || j == 0 || j == Game::MAX_X - 1);
-            bool is_torch = (current_map_char == Object::TORCH);
-            bool is_legend = (i >= legY && i < legY + 6 && j >= legX && j < legX + 76);
+                bool in_light = false;
+                bool is_border = (i == 0 || i == Game::MAX_Y - 1 || j == 0 || j == Game::MAX_X - 1);
+                bool is_torch = (current_map_char == Object::TORCH);
+                bool is_legend = (i >= legY && i < legY + 6 && j >= legX && j < legX + 76);
 
-            for (int p = 0; p < 2; p++) {
-                if (players[p].getIsActive() && !players[p].isWaiting()) {
-                    int r = (players[p].getHeldItem() == Object::TORCH) ? radius : 0;
-                    if (std::abs(players[p].getX() - j) <= r && std::abs(players[p].getY() - i) <= r) {
-                        in_light = true;
-                        break;
-                    }
-                }
-            }
-
-            if (in_light || is_border || is_torch || is_legend) {
-                char_to_draw = current_map_char;
-                if (in_light) {
-                    for (int p = 0; p < 2; p++) {
-                        if (players[p].getIsActive() && !players[p].isWaiting() && players[p].getX() == j && players[p].getY() == i) {
-                            char_to_draw = players[p].get_char();
+                for (int p = 0; p < 2; p++) {
+                    if (players[p].getIsActive() && !players[p].isWaiting()) {
+                        int r = (players[p].getHeldItem() == Object::TORCH) ? radius : 0;
+                        if (std::abs(players[p].getX() - j) <= r && std::abs(players[p].getY() - i) <= r) {
+                            in_light = true;
+                            break;
                         }
                     }
                 }
-            }
-            line += char_to_draw;
-        }
-        gotoxy(0, i);
-        std::cout << line;
-    }
 
-    std::cout.flush();
+                if (in_light || is_border || is_torch || is_legend) {
+                    char_to_draw = current_map_char;
+                    if (in_light) {
+                        for (int p = 0; p < 2; p++) {
+                            if (players[p].getIsActive() && !players[p].isWaiting() && players[p].getX() == j && players[p].getY() == i) {
+                                char_to_draw = players[p].get_char();
+                            }
+                        }
+                    }
+                }
+                line += char_to_draw;
+            }
+            gotoxy(0, i);
+            std::cout << line;
+        }
+
+        std::cout.flush();
+    }
 }
 
 //From tirgul with amir
