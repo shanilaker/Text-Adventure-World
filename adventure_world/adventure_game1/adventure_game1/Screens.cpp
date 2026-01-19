@@ -44,6 +44,7 @@ Screens::Screens() {
 
 size_t Screens::getTotalRiddlesCount() 
 {
+	//Count from the origin files
 	size_t total = 0;
 	for (int k = 1; k <= 3; k++) 
 	{
@@ -58,6 +59,25 @@ size_t Screens::getTotalRiddlesCount()
 			}
 		}
 	}
+
+	//Count from the other files
+	if (game_screens.size() > 7)
+	{
+		for (int k = 7; k < game_screens.size(); k++)
+		{
+			for (int i = 0; i < Game::MAX_Y; i++)
+			{
+				for (int j = 0; j < Game::MAX_X; j++)
+				{
+					if (game_screens[k].getCharAt(j, i) == Object::RIDDLE)
+					{
+						total++;
+					}
+				}
+			}
+		}
+	}
+	
 	return total;
 }
 

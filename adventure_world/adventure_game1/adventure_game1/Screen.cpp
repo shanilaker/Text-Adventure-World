@@ -273,7 +273,7 @@ void Screen::load(const std::string& filename, int index, Riddles& riddles_array
     createFrame(last_row);
 
     //Only to game boards add riddles
-    if (index >= 1 && index <= 3)
+    if ((index >= 1 && index <= 3) || index >= 7)
     {
         for (int i = 0; i < Game::MAX_Y; i++) {
             for (int j = 0; j < Game::MAX_X; j++) {
@@ -333,24 +333,24 @@ void Screen::createFrame(int last_row)
 
 void Screen::update_values(char c, int index, int curr_col, int curr_row, Point& l_p)
 {
-    if (c == Object::BOMB && (index >= 1 && index <= 3)) {
+    if (c == Object::BOMB && ((index >= 1 && index <= 3) || index >= 7)) {
         bombs.push_back(Bomb(false, curr_col, curr_row, -1));
         screen[curr_row][curr_col] = Object::BOMB;
     }
 
-    else if (c == Object::C_SWITCH && (index >= 1 && index <= 3)) {
+    else if (c == Object::C_SWITCH && ((index >= 1 && index <= 3) || index >= 7)) {
         switches.push_back(Switch(curr_col, curr_row, false, false));
         screen[curr_row][curr_col] = Object::C_SWITCH;
     }
 
-    else if (c == 'L' && (index >= 1 && index <= 3)) {
+    else if (c == 'L' && ((index >= 1 && index <= 3) || index >= 7)) {
         legend_count++;
         l_p.setX(curr_col);
         l_p.setY(curr_row);
         screen[curr_row][curr_col] = Object::SPACE;
     }
 
-    else if (c >= '1' && c <= '9' && (index >= 1 && index <= 3)) {
+    else if (c >= '1' && c <= '9' && ((index >= 1 && index <= 3) || index >= 7)) {
         screen_doors.push_back(Door(curr_col, curr_row, c, 0, false));
         screen[curr_row][curr_col] = c;
     }

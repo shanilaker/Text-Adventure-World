@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include <algorithm>
 
 Menu::Menu(Screens& s) : screens(s) {}
 
@@ -27,17 +28,17 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
                 p.setCurrentRoomID(current_room_id);
                 p.setPosition(start_screen.getStartPos());
             }
-            for (int i = 1; i < 4; i++) {
-                if (i == 1)
-                {
-                    screens.getgame_screens()[i].reset(players,true);
-                }
+          
+            for (int i = 1; i < (int)screens.getgame_screens().size(); i++) {
+                
+                if (i >= GameState::INSTRUCTIONS && i <= GameState::LOSE) continue;
 
-                else
-                {
+                if (i == 1) {
+                    screens.getgame_screens()[i].reset(players, true);
+                }
+                else {
                     screens.getgame_screens()[i].reset(players, false);
                 }
-                
             }
 
             start_screen.draw();
@@ -141,14 +142,14 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
             cls();
             screens.getgame_screens()[current_room_id].draw();
             for (auto& p : players) { p.reset(); }
-            for (int i = 1; i < 4; i++) { 
-                if (i == 1)
-                {
+            
+            for (int i = 1; i < (int)screens.getgame_screens().size(); i++) {
+                if (i >= GameState::INSTRUCTIONS && i <= GameState::LOSE) continue;
+
+                if (i == 1) {
                     screens.getgame_screens()[i].reset(players, true);
                 }
-
-                else
-                {
+                else {
                     screens.getgame_screens()[i].reset(players, false);
                 }
             }
@@ -164,82 +165,97 @@ GameState Menu::run(GameState current_state, int& current_room_id, vector<Player
     return current_state;
 }
 
-GameState Menu::testing(bool not_vaild_over_screen, bool not_vaild_on_objects)
+GameState Menu::playingTesting(int num, int max_idx, bool& not_vaild_over_screen, bool& not_vaild_on_objects)
 {
-    for (int i = 1; i < 3; i++)
+    size_t limit = (std::min)((size_t)max_idx + 1, screens.getgame_screens().size());
+
+    for (size_t i = num; i < limit; i++)
     {
-        //If the players start position is out of the screen
-        if (screens.getgame_screens()[i].getStartPos().getX() >= Game::MAX_X || screens.getgame_screens()[i].getStartPos().getY() >= Game::MAX_Y)
+        
+        if (screens.getgame_screens()[i].getStartPos().getX() >= Game::MAX_X ||
+            screens.getgame_screens()[i].getStartPos().getY() >= Game::MAX_Y)
         {
             gotoxy(15, 10);
-            std::cout << "Error: Player starts out of the screen erea in Screen " << i << "!";
+            std::cout << "Error: Player starts out of bounds in Screen " << i << "!";
             return GameState::MENU;
         }
 
-        //If the players start position is on the legend
-        if (screens.getgame_screens()[i].isPlayerOverlappedWithLegend())
-        {
-            gotoxy(15, 10);
-            std::cout << "Error: Player starts inside Legend area in Screen " << i << "!";
-            return GameState::MENU;
-        }
-    }
-
-    //If there is no legend or more then one legend
-    for (int i = 1; i < 3; i++)
-    {
+        
         int l_count = screens.getgame_screens()[i].get_legend_count();
-        if (l_count != 1)
-        {
+        if (l_count != 1) {
             gotoxy(25, 10);
             if (l_count == 0) std::cout << "Error: Missing Legend in Screen " << i;
             else std::cout << "Error: Too many Legends in Screen " << i;
             return GameState::MENU;
         }
-    }
 
-    //If we have more '?' than riddles
-    size_t total_riddles = screens.getTotalRiddlesCount();
-    int ridlles_files = screens.getTotalRiddleScreensCount();
-    if (total_riddles > ridlles_files)
-    {
-        gotoxy(15, 10);
-        std::cout << "Error: Too many riddles in the game! (Max: " << ridlles_files<< ", Found: " << total_riddles << ")";
-        return GameState::MENU;
-    }
-
-    //Checks if the Legend point is valid
-    for (int i = 1; i < 4; i++)
-    {
+        
         if (screens.getgame_screens()[i].get_screen_legend().get_over_the_screen())
-        {
             not_vaild_over_screen = true;
-        }
-        else if (screens.getgame_screens()[i].get_screen_legend().get_on_objects())
-        {
+
+        if (screens.getgame_screens()[i].get_screen_legend().get_on_objects())
             not_vaild_on_objects = true;
-        }
-    }
-
-    //If the legend is on live objects
-    if (not_vaild_on_objects)
-    {
-        gotoxy(20, 10);
-        cout << "Error: Legend is placed on live objects!";
-        return GameState::MENU;
-    }
-
-    //If the legend placed out of the screen 
-    else if (not_vaild_over_screen)
-    {
-        gotoxy(18, 10);
-        cout << "Error: Legend is placed out of screen bounds!";
-        return GameState::MENU;
     }
 
     return GameState::PLAYING;
 }
 
+GameState Menu::testing(bool not_vaild_over_screen, bool not_vaild_on_objects)
+{
+   
+    size_t num_screens = screens.getgame_screens().size();
+
+    
+    if (num_screens < 4) {
+        cls();
+        gotoxy(15, 10);
+        std::cout << "Error: Essential game screens (1-3) are missing from the folder!";
+        return GameState::MENU;
+    }
+
+    //Test the origin screen files
+    if (playingTesting(1, 3, not_vaild_over_screen, not_vaild_on_objects) == GameState::MENU)
+        return GameState::MENU;
+
+    //Test to other screen files
+    if (num_screens > 7)
+    {
+       
+        if (playingTesting(7, (int)num_screens - 1, not_vaild_over_screen, not_vaild_on_objects) == GameState::MENU)
+            return GameState::MENU;
+    }
+
+   
+    size_t total_riddles_found = screens.getTotalRiddlesCount();
+    int riddle_files_available = screens.getTotalRiddleScreensCount();
+
+    if (total_riddles_found > (size_t)riddle_files_available)
+    {
+        cls();
+        gotoxy(2, 10);
+        std::cout << "Error: Too many '?' icons in screens! (Found: " << total_riddles_found
+            << ", Riddle files available: " << riddle_files_available << ")";
+        return GameState::MENU;
+    }
+
+ 
+    if (not_vaild_on_objects) {
+        cls();
+        gotoxy(20, 10);
+        std::cout << "Error: Legend is placed on live objects!";
+        return GameState::MENU;
+    }
+
+    if (not_vaild_over_screen) {
+        cls();
+        gotoxy(18, 10);
+        std::cout << "Error: Legend is placed out of screen bounds!";
+        return GameState::MENU;
+    }
+
+   
+    return GameState::PLAYING;
+}
 
 std::string Menu::saveCurrentGame(int current_room, vector<Player>& players, Screens& _screens) {
 

@@ -21,7 +21,7 @@ void Game::run()
 	Menu menu_handler(screens); // Initialize the menu handler with access to screens
 	int current_room = MENU;
 
-	
+
 	// Initialize two players with their start positions, symbols and keysets
 	vector<Player> players;
 	players.push_back(Player(20, 20, 0, 0, '$', "wdxase", 0, false));
@@ -36,12 +36,19 @@ void Game::run()
 			p.reset();
 			p.setPosition(start_screen.getStartPos());
 		}
-		for (int i = 1; i < 4; i++) {
+
+		size_t num_screens = screens.getgame_screens().size();
+
+		//Reset game screens
+		for (int i = 1; i < (int)num_screens; i++) {
+			if (i >= GameState::INSTRUCTIONS && i <= GameState::LOSE) continue;
+
 			if (i == 1)
 				screens.getgame_screens()[i].reset(players, true);
 			else
 				screens.getgame_screens()[i].reset(players, false);
 		}
+
 		start_screen.draw();
 
 		for (auto& p : players) {
@@ -131,7 +138,7 @@ void Game::run()
 			// Update player positions, movement and check for triggers
 			updatePlayers(current_screen, players, riddle_triggered, *this, current_room);
 			cout.flush();
-		
+
 			// Handle riddle trigger event
 			if (riddle_triggered) {
 				for (auto& riddle : current_screen.get_riddles())
@@ -147,6 +154,17 @@ void Game::run()
 			// Check if room was completed (both players moved)
 			int next_room = calculateNextRoom(current_room, players);
 			if ((next_room != current_room)) {
+
+				if (next_room < 0 || next_room >= (int)screens.getgame_screens().size()) {
+					if (next_room != END_GAME) {
+						cls();
+						std::cout << "Error: Room " << next_room << " not found! Returning to Menu." << std::endl;
+						std::cout << "Press any key to continue...";
+						(void)_getch();
+						game_state = MENU;
+						next_room = MENU;
+					}
+				}
 				if (game_state != END_GAME && game_state != EXIT) {
 					recordEvent(GameEvent::CHANGE_ROOM, next_room);
 				}
@@ -157,7 +175,7 @@ void Game::run()
 				screens.getgame_screens()[prev_room].reset_players_moved();
 				auto& next_screen = screens.getgame_screens()[current_room];
 
-				
+
 				Point spawnPoint = (current_room > prev_room) ? next_screen.getStartPos() : next_screen.EndPos();
 
 				if (game_state == END_GAME) {
@@ -169,7 +187,7 @@ void Game::run()
 			}
 			checkValidation(run_time);
 			setRuntime(); // Update game runtime
-			
+
 		}
 		doSleep();
 	}
@@ -227,17 +245,17 @@ void Game::updatePlayers(Screen& current_screen, vector<Player>& players, bool& 
 
 void Game::prepareNextRoom(Screen& next_screen, vector<Player>& players, const Point& spawnPoint, int current_room)
 {
-	next_screen.draw();	
+	next_screen.draw();
 
 	for (auto& p : players)
 	{
 		if (p.getIsActive())
 		{
 			if (next_screen.get_legend_count() > 0)
-			{ 
+			{
 				next_screen.get_screen_legend().update_values(p, next_screen);
 			}
-			
+
 			if (p.getCurrentRoomID() == current_room)
 			{
 				p.setPosition(spawnPoint);
