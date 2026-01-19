@@ -31,5 +31,8 @@ public:
 
     //Saving the game state
     GameState savingGameState(int& current_room_id, vector<Player>& players);
+
+    //Test for all playing screens
+    GameState playingTesting(int num, int max_idx, bool& not_vaild_over_screen, bool& not_vaild_on_objects);
 };
 

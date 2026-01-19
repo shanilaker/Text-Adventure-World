@@ -59,7 +59,7 @@ void Legend::update_values(const Player& p_ref, Screen& cur_screen)
     if (!Game::silent_mode) {
         int roomID = p_ref.getCurrentRoomID();
 
-        if (roomID >= 1 && roomID <= 3)
+        if ((roomID >= 1 && roomID <= 3) || roomID >= 7)
         {
             int row = (p_ref.get_char() == '$') ? p.getY() + 1 : p.getY() + 3;
             int l_x = p.getX();
